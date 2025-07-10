@@ -61,7 +61,6 @@
         const hum = document.getElementById("hum");
         const threshold = document.getElementById("threshold");
 
-        // Подгрузка актуальных данных с backend
         async function loadData() {
             try {
                 const res = await fetch("https://iot-backend-bor5.onrender.com/get-latest");
@@ -70,12 +69,15 @@
                     temp.textContent = data.temperature;
                     hum.textContent = data.humidity;
                     threshold.textContent = data.threshold;
-                    slider.value = data.threshold;
-                    sliderVal.textContent = data.threshold;
+
+                    // Обновляем ползунок, только если пользователь НЕ двигает его сам
+                    if (!slider.matches(':active')) {
+                        slider.value = data.threshold;
+                        sliderVal.textContent = data.threshold;
+                    }
                 }
             } catch (e) {
-                tg.showAlert("❌ Ошибка загрузки данных");
-                console.error(e);
+                console.warn("Ошибка загрузки данных:", e);
             }
         }
 
@@ -98,14 +100,18 @@
                     tg.showAlert("❌ Ошибка при сохранении");
                 }
             } catch (e) {
-                tg.showAlert("❌ Ошибка сети");
+                tg.showAlert("❌ Сеть недоступна");
                 console.error(e);
             }
         }
 
         // Загружаем данные при старте
         loadData();
+
+        // 🔁 Автообновление каждые 5 секунд
+        setInterval(loadData, 5000);
     </script>
+
 </body>
 
 </html>
