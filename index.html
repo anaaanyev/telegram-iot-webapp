@@ -19,6 +19,15 @@
             width: 100%;
         }
 
+        input[type=text] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
         .value {
             font-weight: bold;
         }
@@ -27,6 +36,50 @@
             padding: 10px;
             font-size: 16px;
             width: 100%;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .auth-screen {
+            display: block;
+        }
+
+        .main-screen {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -34,19 +87,38 @@
 <body>
     <h2>🌡️ Climate Control</h2>
 
-    <div class="section">
-        <p>Температура: <span id="temp">--</span> °C</p>
-        <p>Влажность: <span id="hum">--</span> %</p>
-        <p>Текущий порог: <span id="threshold">--</span> °C</p>
+    <!-- Экран авторизации -->
+    <div id="authScreen" class="auth-screen">
+        <div class="section">
+            <p>Добро пожаловать! Для начала работы введите ID вашего устройства:</p>
+            <label for="deviceIdInput">ID устройства:</label>
+            <input type="text" id="deviceIdInput" placeholder="Введите ID устройства" />
+        </div>
+
+        <div class="section">
+            <button id="registerBtn" onclick="registerUser()">🔐 Подключиться</button>
+        </div>
+
+        <div id="authMessage"></div>
     </div>
 
-    <div class="section">
-        <label for="slider">Новый порог: <span id="sliderVal">25</span> °C</label>
-        <input type="range" id="slider" min="0" max="40" value="25">
-    </div>
+    <!-- Основной экран -->
+    <div id="mainScreen" class="main-screen">
+        <div class="section">
+            <p>Устройство: <span id="deviceInfo">--</span></p>
+            <p>Температура: <span id="temp">--</span> °C</p>
+            <p>Влажность: <span id="hum">--</span> %</p>
+            <p>Текущий порог: <span id="threshold">--</span> °C</p>
+        </div>
 
-    <div class="section">
-        <button onclick="saveThreshold()">💾 Сохранить</button>
+        <div class="section">
+            <label for="slider">Новый порог: <span id="sliderVal">25</span> °C</label>
+            <input type="range" id="slider" min="0" max="40" value="25">
+        </div>
+
+        <div class="section">
+            <button onclick="saveThreshold()">💾 Сохранить</button>
+        </div>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -54,17 +126,102 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Элементы интерфейса
+        const authScreen = document.getElementById("authScreen");
+        const mainScreen = document.getElementById("mainScreen");
+        const deviceIdInput = document.getElementById("deviceIdInput");
+        const registerBtn = document.getElementById("registerBtn");
+        const authMessage = document.getElementById("authMessage");
+
         const slider = document.getElementById("slider");
         const sliderVal = document.getElementById("sliderVal");
-
         const temp = document.getElementById("temp");
         const hum = document.getElementById("hum");
         const threshold = document.getElementById("threshold");
+        const deviceInfo = document.getElementById("deviceInfo");
 
-        async function loadData() {
+        // Переменные состояния
+        let currentDeviceId = null;
+        let isAuthorized = false;
+
+        // Функция для показа сообщений
+        function showMessage(message, isError = false) {
+            authMessage.innerHTML = `<div class="${isError ? 'error' : 'success'}">${message}</div>`;
+        }
+
+        // Функция регистрации/авторизации пользователя
+        async function registerUser() {
+            const deviceId = deviceIdInput.value.trim();
+
+            if (!deviceId) {
+                showMessage("Пожалуйста, введите ID устройства", true);
+                return;
+            }
+
+            registerBtn.disabled = true;
+            registerBtn.textContent = "🔄 Подключение...";
+            showMessage("Подключение к устройству...");
+
             try {
-                const res = await fetch("https://iot-backend-bor5.onrender.com/get-latest");
-                const data = await res.json();
+                // Получаем данные пользователя из Telegram
+                const telegramUser = tg.initDataUnsafe?.user;
+                if (!telegramUser) {
+                    throw new Error("Не удалось получить данные пользователя Telegram");
+                }
+
+                // Отправляем запрос на регистрацию
+                const response = await fetch("https://iot-backend-bor5.onrender.com/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        device_id: deviceId,
+                        telegram_id: telegramUser.id,
+                        username: telegramUser.username || '',
+                        first_name: telegramUser.first_name || '',
+                        last_name: telegramUser.last_name || ''
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Успешная регистрация
+                    currentDeviceId = deviceId;
+                    isAuthorized = true;
+                    deviceInfo.textContent = deviceId;
+
+                    showMessage("✅ Успешно подключено к устройству!");
+
+                    // Переходим к основному экрану через 1 секунду
+                    setTimeout(() => {
+                        authScreen.style.display = "none";
+                        mainScreen.style.display = "block";
+                        loadData(); // Загружаем данные
+                        startAutoUpdate(); // Запускаем автообновление
+                    }, 1000);
+
+                } else {
+                    // Ошибка регистрации
+                    showMessage(`❌ Ошибка: ${result.error || 'Неизвестная ошибка'}`, true);
+                }
+
+            } catch (error) {
+                console.error("Ошибка при регистрации:", error);
+                showMessage(`❌ Ошибка подключения: ${error.message}`, true);
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = "🔐 Подключиться";
+            }
+        }
+
+        // Функция загрузки данных с сервера
+        async function loadData() {
+            if (!isAuthorized || !currentDeviceId) return;
+
+            try {
+                const response = await fetch(`https://iot-backend-bor5.onrender.com/get-latest?device_id=${currentDeviceId}`);
+                const data = await response.json();
+
                 if (data.temperature !== null) {
                     temp.textContent = data.temperature;
                     hum.textContent = data.humidity;
@@ -76,40 +233,60 @@
                         sliderVal.textContent = data.threshold;
                     }
                 }
-            } catch (e) {
-                console.warn("Ошибка загрузки данных:", e);
+            } catch (error) {
+                console.warn("Ошибка загрузки данных:", error);
             }
         }
 
-        slider.addEventListener("input", () => {
-            sliderVal.textContent = slider.value;
-        });
-
+        // Функция сохранения порога
         async function saveThreshold() {
+            if (!isAuthorized || !currentDeviceId) return;
+
             const newThreshold = parseFloat(slider.value);
+
             try {
-                const res = await fetch("https://iot-backend-bor5.onrender.com/set-threshold", {
+                const response = await fetch("https://iot-backend-bor5.onrender.com/set-threshold", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ threshold: newThreshold })
+                    body: JSON.stringify({
+                        device_id: currentDeviceId,
+                        threshold: newThreshold
+                    })
                 });
-                if (res.ok) {
+
+                if (response.ok) {
                     tg.showAlert("✅ Порог сохранён!");
                     threshold.textContent = newThreshold;
                 } else {
                     tg.showAlert("❌ Ошибка при сохранении");
                 }
-            } catch (e) {
+            } catch (error) {
                 tg.showAlert("❌ Сеть недоступна");
-                console.error(e);
+                console.error(error);
             }
         }
 
-        // Загружаем данные при старте
-        loadData();
+        // Функция запуска автообновления
+        function startAutoUpdate() {
+            setInterval(loadData, 5000);
+        }
 
-        // 🔁 Автообновление каждые 5 секунд
-        setInterval(loadData, 5000);
+        // Обработчик изменения ползунка
+        slider.addEventListener("input", () => {
+            sliderVal.textContent = slider.value;
+        });
+
+        // Обработчик Enter в поле ввода
+        deviceIdInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                registerUser();
+            }
+        });
+
+        // Проверка на повторный вход (можно реализовать сохранение в localStorage)
+        // Пока что всегда показываем экран авторизации
+
+        console.log("Climate Control WebApp загружен");
     </script>
 
 </body>
