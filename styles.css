@@ -26,7 +26,7 @@
 /* Dark theme */
 .dark-theme {
     --bg-color: #000000;
-    --bg-secondary: #1e293b;
+    --bg-secondary: #000000;
     --text-color: #f1f5f9;
     --text-secondary: #94a3b8;
     --border-color: #334155;
