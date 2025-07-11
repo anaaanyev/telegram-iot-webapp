@@ -6,50 +6,215 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Climate Control</title>
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --danger-color: #dc2626;
+            --danger-hover: #b91c1c;
+            --success-color: #059669;
+            --success-bg: #d1fae5;
+            --error-color: #dc2626;
+            --error-bg: #fee2e2;
+            --border-radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Light theme */
+        .light-theme {
+            --bg-color: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --input-bg: #ffffff;
+        }
+
+        /* Dark theme */
+        .dark-theme {
+            --bg-color: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-color: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --card-bg: #1e293b;
+            --input-bg: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
             padding: 20px;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
         }
 
         .section {
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
         }
 
-        input[type=range] {
-            width: 100%;
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-size: 0.875rem;
         }
 
         input[type=text] {
             width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            transition: all 0.2s ease;
         }
 
-        .value {
-            font-weight: bold;
+        input[type=text]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        input[type=range] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border-color);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        input[type=range]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: none;
+            box-shadow: var(--shadow);
+        }
+
+        .slider-container {
+            padding: 1rem 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .slider-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            background: var(--bg-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
         button {
-            padding: 10px;
-            font-size: 16px;
             width: 100%;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
             border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: white;
+            border-radius: 12px;
             cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        button:hover {
-            background-color: #0056b3;
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
         }
 
         button:disabled {
-            background-color: #ccc;
+            background: var(--border-color);
+            color: var(--text-secondary);
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .auth-screen {
@@ -60,68 +225,195 @@
             display: none;
         }
 
-        .loading {
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 12px;
             text-align: center;
-            color: #666;
-            font-style: italic;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .device-info {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .device-info .device-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .device-info .device-id {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-top: 0.25rem;
         }
 
         .error {
-            color: #dc3545;
-            background-color: #f8d7da;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
+            color: var(--error-color);
+            background: var(--error-bg);
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            border: 1px solid var(--error-color);
+            border-opacity: 0.2;
         }
 
         .success {
-            color: #155724;
-            background-color: #d4edda;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
+            color: var(--success-color);
+            background: var(--success-bg);
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            border: 1px solid var(--success-color);
+            border-opacity: 0.2;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 
 <body>
-    <h2>🌡️ Climate Control</h2>
+    <div class="container">
+        <h2>🌡️ Climate Control</h2>
 
-    <!-- Экран авторизации -->
-    <div id="authScreen" class="auth-screen">
-        <div class="section">
-            <p>Добро пожаловать! Для начала работы введите ID вашего устройства:</p>
-            <label for="deviceIdInput">ID устройства:</label>
-            <input type="text" id="deviceIdInput" placeholder="Введите ID устройства" />
+        <!-- Экран авторизации -->
+        <div id="authScreen" class="auth-screen">
+            <div class="card">
+                <div class="section">
+                    <p style="text-align: center; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                        Добро пожаловать! Для начала работы введите ID вашего устройства
+                    </p>
+                    <label for="deviceIdInput">ID устройства</label>
+                    <input type="text" id="deviceIdInput" placeholder="Введите ID устройства" />
+                </div>
+
+                <div class="section">
+                    <button id="registerBtn" class="btn-primary" onclick="registerUser()">
+                        🔐 Подключиться
+                    </button>
+                </div>
+
+                <div id="authMessage"></div>
+            </div>
         </div>
 
-        <div class="section">
-            <button id="registerBtn" onclick="registerUser()">🔐 Подключиться</button>
-        </div>
+        <!-- Основной экран -->
+        <div id="mainScreen" class="main-screen">
+            <div class="card">
+                <div class="device-info">
+                    <div class="device-label">Устройство</div>
+                    <div class="device-id" id="deviceInfo">--</div>
+                </div>
 
-        <div id="authMessage"></div>
-    </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Температура</div>
+                        <div class="stat-value"><span id="temp">--</span>°C</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Влажность</div>
+                        <div class="stat-value"><span id="hum">--</span>%</div>
+                    </div>
+                </div>
 
-    <!-- Основной экран -->
-    <div id="mainScreen" class="main-screen">
-        <div class="section">
-            <p>Устройство: <span id="deviceInfo">--</span></p>
-            <p>Температура: <span id="temp">--</span> °C</p>
-            <p>Влажность: <span id="hum">--</span> %</p>
-            <p>Текущий порог: <span id="threshold">--</span> °C</p>
-        </div>
+                <div class="section">
+                    <div class="stat-card">
+                        <div class="stat-label">Текущий порог</div>
+                        <div class="stat-value"><span id="threshold">--</span>°C</div>
+                    </div>
+                </div>
 
-        <div class="section">
-            <label for="slider">Новый порог: <span id="sliderVal">25</span> °C</label>
-            <input type="range" id="slider" min="0" max="40" value="25">
-        </div>
+                <div class="section">
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <label for="slider">Новый порог</label>
+                            <div class="slider-value"><span id="sliderVal">25</span>°C</div>
+                        </div>
+                        <input type="range" id="slider" min="0" max="40" value="25">
+                    </div>
+                </div>
 
-        <div class="section">
-            <button onclick="saveThreshold()">💾 Сохранить</button>
-        </div>
+                <div class="section">
+                    <button class="btn-primary" onclick="saveThreshold()">
+                        💾 Сохранить порог
+                    </button>
+                </div>
 
-        <div class="section">
-            <button onclick="unregisterDevice()" style="background-color: #dc3545;">🔓 Отвязать устройство</button>
+                <div class="section">
+                    <button class="btn-danger" onclick="unregisterDevice()">
+                        🔓 Отвязать устройство
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -386,9 +678,31 @@
             }
         });
 
+        // Функция для применения темы
+        function applyTheme() {
+            const tg = window.Telegram?.WebApp;
+            if (tg && tg.colorScheme) {
+                // Используем тему из Telegram
+                document.body.className = tg.colorScheme === 'dark' ? 'dark-theme' : 'light-theme';
+            } else {
+                // Резервный вариант - определяем по системным настройкам
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.body.className = prefersDark ? 'dark-theme' : 'light-theme';
+            }
+        }
+
         // Инициализация приложения
         async function initApp() {
             console.log("Climate Control WebApp загружен");
+
+            // Применяем тему
+            applyTheme();
+
+            // Слушаем изменения темы в Telegram
+            const tg = window.Telegram?.WebApp;
+            if (tg && tg.onEvent) {
+                tg.onEvent('themeChanged', applyTheme);
+            }
 
             // Проверяем авторизацию при запуске
             const isAuthed = await checkAuth();
