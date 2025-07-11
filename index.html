@@ -148,6 +148,7 @@
         let currentDeviceId = null;
         let isAuthorized = false;
         let userIsMovingSlider = false; // Флаг для отслеживания перемещения ползунка
+        let sliderHasChanged = false; // Флаг для отслеживания изменения ползунка пользователем
 
         // Функция для показа сообщений
         function showMessage(message, isError = false) {
@@ -266,8 +267,8 @@
                     hum.textContent = data.humidity || "--";
                     threshold.textContent = data.threshold || "--";
 
-                    // Обновляем ползунок, только если пользователь НЕ двигает его сам
-                    if (!userIsMovingSlider && data.threshold !== undefined) {
+                    // Обновляем ползунок, только если пользователь НЕ двигает его сам И он не изменен
+                    if (!userIsMovingSlider && !sliderHasChanged && data.threshold !== undefined) {
                         slider.value = data.threshold;
                         sliderVal.textContent = data.threshold;
                     }
@@ -296,6 +297,7 @@
                 if (response.ok) {
                     tg.showAlert("✅ Порог сохранён!");
                     threshold.textContent = newThreshold;
+                    sliderHasChanged = false; // Сбрасываем флаг после успешного сохранения
                 } else {
                     tg.showAlert("❌ Ошибка при сохранении");
                 }
@@ -357,6 +359,7 @@
         // Обработчики событий для ползунка
         slider.addEventListener("input", () => {
             sliderVal.textContent = slider.value;
+            sliderHasChanged = true; // Отмечаем, что ползунок изменён пользователем
         });
 
         slider.addEventListener("mousedown", () => {
