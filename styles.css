@@ -15,7 +15,7 @@
 /* Фоновый градиент */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #000000, #2e026d);
+    background: linear-gradient(90deg, #000000, #2e026d);
     color: #ffffff;
     line-height: 1.6;
     padding: 15px;
