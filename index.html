@@ -147,6 +147,7 @@
         // Переменные состояния
         let currentDeviceId = null;
         let isAuthorized = false;
+        let userIsMovingSlider = false; // Флаг для отслеживания перемещения ползунка
 
         // Функция для показа сообщений
         function showMessage(message, isError = false) {
@@ -261,12 +262,12 @@
                 const data = await response.json();
 
                 if (data.temperature !== null) {
-                    temp.textContent = data.temperature;
-                    hum.textContent = data.humidity;
-                    threshold.textContent = data.threshold;
+                    temp.textContent = data.temperature || "--";
+                    hum.textContent = data.humidity || "--";
+                    threshold.textContent = data.threshold || "--";
 
                     // Обновляем ползунок, только если пользователь НЕ двигает его сам
-                    if (!slider.matches(':active')) {
+                    if (!userIsMovingSlider && data.threshold !== undefined) {
                         slider.value = data.threshold;
                         sliderVal.textContent = data.threshold;
                     }
@@ -353,9 +354,26 @@
             setInterval(loadData, 5000);
         }
 
-        // Обработчик изменения ползунка
+        // Обработчики событий для ползунка
         slider.addEventListener("input", () => {
             sliderVal.textContent = slider.value;
+        });
+
+        slider.addEventListener("mousedown", () => {
+            userIsMovingSlider = true;
+        });
+
+        slider.addEventListener("mouseup", () => {
+            userIsMovingSlider = false;
+        });
+
+        // Для мобильных устройств
+        slider.addEventListener("touchstart", () => {
+            userIsMovingSlider = true;
+        });
+
+        slider.addEventListener("touchend", () => {
+            userIsMovingSlider = false;
         });
 
         // Обработчик Enter в поле ввода
