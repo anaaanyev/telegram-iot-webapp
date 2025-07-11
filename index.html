@@ -5,340 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Climate Control</title>
-    <style>
-        :root {
-            --primary-color: #2563eb;
-            --primary-hover: #1d4ed8;
-            --danger-color: #dc2626;
-            --danger-hover: #b91c1c;
-            --success-color: #059669;
-            --success-bg: #d1fae5;
-            --error-color: #dc2626;
-            --error-bg: #fee2e2;
-            --border-radius: 16px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Light theme */
-        .light-theme {
-            --bg-color: #ffffff;
-            --bg-secondary: #f8fafc;
-            --text-color: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
-            --card-bg: #ffffff;
-            --input-bg: #ffffff;
-        }
-
-        /* Dark theme */
-        .dark-theme {
-            --bg-color: #0f172a;
-            --bg-secondary: #1e293b;
-            --text-color: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
-            --card-bg: #1e293b;
-            --input-bg: #334155;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .container {
-            max-width: 420px;
-            margin: 0 auto;
-        }
-
-        h2 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 2rem;
-            color: var(--text-color);
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-
-        .section {
-            margin-bottom: 1.5rem;
-        }
-
-        .section:last-child {
-            margin-bottom: 0;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-color);
-            font-size: 0.875rem;
-        }
-
-        input[type=text] {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            font-size: 1rem;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--input-bg);
-            color: var(--text-color);
-            transition: all 0.2s ease;
-        }
-
-        input[type=text]:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        input[type=range] {
-            width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: var(--border-color);
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-            transition: all 0.2s ease;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            transition: all 0.2s ease;
-        }
-
-        input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-            box-shadow: var(--shadow-lg);
-        }
-
-        input[type=range]::-moz-range-thumb {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            cursor: pointer;
-            border: none;
-            box-shadow: var(--shadow);
-        }
-
-        .slider-container {
-            padding: 1rem 0;
-        }
-
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .slider-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            background: var(--bg-secondary);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-
-        button {
-            width: 100%;
-            padding: 0.875rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-danger {
-            background: var(--danger-color);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: var(--danger-hover);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        button:disabled {
-            background: var(--border-color);
-            color: var(--text-secondary);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .auth-screen {
-            display: block;
-        }
-
-        .main-screen {
-            display: none;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-card {
-            background: var(--bg-secondary);
-            padding: 1rem;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-color);
-        }
-
-        .device-info {
-            background: var(--bg-secondary);
-            padding: 1rem;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .device-info .device-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .device-info .device-id {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-top: 0.25rem;
-        }
-
-        .error {
-            color: var(--error-color);
-            background: var(--error-bg);
-            padding: 1rem;
-            border-radius: 12px;
-            margin: 1rem 0;
-            border: 1px solid var(--error-color);
-            border-opacity: 0.2;
-        }
-
-        .success {
-            color: var(--success-color);
-            background: var(--success-bg);
-            padding: 1rem;
-            border-radius: 12px;
-            margin: 1rem 0;
-            border: 1px solid var(--success-color);
-            border-opacity: 0.2;
-        }
-
-        .loading {
-            text-align: center;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        /* Animations */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card {
-            animation: slideIn 0.3s ease;
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            body {
-                padding: 15px;
-            }
-
-            .container {
-                max-width: 100%;
-            }
-
-            h2 {
-                font-size: 1.5rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -383,11 +50,8 @@
                         <div class="stat-label">Влажность</div>
                         <div class="stat-value"><span id="hum">--</span>%</div>
                     </div>
-                </div>
-
-                <div class="section">
                     <div class="stat-card">
-                        <div class="stat-label">Текущий порог</div>
+                        <div class="stat-label">Порог</div>
                         <div class="stat-value"><span id="threshold">--</span>°C</div>
                     </div>
                 </div>
@@ -439,8 +103,8 @@
         // Переменные состояния
         let currentDeviceId = null;
         let isAuthorized = false;
-        let userIsMovingSlider = false; // Флаг для отслеживания перемещения ползунка
-        let sliderHasChanged = false; // Флаг для отслеживания изменения ползунка пользователем
+        let userIsMovingSlider = false;
+        let sliderHasChanged = false;
 
         // Функция для показа сообщений
         function showMessage(message, isError = false) {
@@ -460,12 +124,10 @@
                 const result = await response.json();
 
                 if (response.ok && result.authorized) {
-                    // Пользователь уже авторизован
                     currentDeviceId = result.device_id;
                     isAuthorized = true;
                     deviceInfo.textContent = result.device_id;
 
-                    // Переходим сразу к основному экрану
                     authScreen.style.display = "none";
                     mainScreen.style.display = "block";
                     loadData();
@@ -495,13 +157,11 @@
             showMessage("Подключение к устройству...");
 
             try {
-                // Получаем данные пользователя из Telegram
                 const telegramUser = tg.initDataUnsafe?.user;
                 if (!telegramUser) {
                     throw new Error("Не удалось получить данные пользователя Telegram");
                 }
 
-                // Отправляем запрос на регистрацию
                 const response = await fetch("https://iot-backend-bor5.onrender.com/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -517,23 +177,20 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    // Успешная регистрация
                     currentDeviceId = deviceId;
                     isAuthorized = true;
                     deviceInfo.textContent = deviceId;
 
                     showMessage("✅ Успешно подключено к устройству!");
 
-                    // Переходим к основному экрану через 1 секунду
                     setTimeout(() => {
                         authScreen.style.display = "none";
                         mainScreen.style.display = "block";
-                        loadData(); // Загружаем данные
-                        startAutoUpdate(); // Запускаем автообновление
+                        loadData();
+                        startAutoUpdate();
                     }, 1000);
 
                 } else {
-                    // Ошибка регистрации
                     showMessage(`❌ Ошибка: ${result.error || 'Неизвестная ошибка'}`, true);
                 }
 
@@ -559,7 +216,6 @@
                     hum.textContent = data.humidity || "--";
                     threshold.textContent = data.threshold || "--";
 
-                    // Обновляем ползунок, только если пользователь НЕ двигает его сам И он не изменен
                     if (!userIsMovingSlider && !sliderHasChanged && data.threshold !== undefined) {
                         slider.value = data.threshold;
                         sliderVal.textContent = data.threshold;
@@ -589,7 +245,7 @@
                 if (response.ok) {
                     tg.showAlert("✅ Порог сохранён!");
                     threshold.textContent = newThreshold;
-                    sliderHasChanged = false; // Сбрасываем флаг после успешного сохранения
+                    sliderHasChanged = false;
                 } else {
                     tg.showAlert("❌ Ошибка при сохранении");
                 }
@@ -624,12 +280,10 @@
                 if (response.ok) {
                     tg.showAlert("✅ Устройство отвязано!");
 
-                    // Сбрасываем состояние
                     currentDeviceId = null;
                     isAuthorized = false;
                     deviceIdInput.value = "";
 
-                    // Возвращаемся к экрану авторизации
                     mainScreen.style.display = "none";
                     authScreen.style.display = "block";
 
@@ -651,7 +305,7 @@
         // Обработчики событий для ползунка
         slider.addEventListener("input", () => {
             sliderVal.textContent = slider.value;
-            sliderHasChanged = true; // Отмечаем, что ползунок изменён пользователем
+            sliderHasChanged = true;
         });
 
         slider.addEventListener("mousedown", () => {
@@ -682,10 +336,8 @@
         function applyTheme() {
             const tg = window.Telegram?.WebApp;
             if (tg && tg.colorScheme) {
-                // Используем тему из Telegram
                 document.body.className = tg.colorScheme === 'dark' ? 'dark-theme' : 'light-theme';
             } else {
-                // Резервный вариант - определяем по системным настройкам
                 const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
                 document.body.className = prefersDark ? 'dark-theme' : 'light-theme';
             }
@@ -695,16 +347,13 @@
         async function initApp() {
             console.log("Climate Control WebApp загружен");
 
-            // Применяем тему
             applyTheme();
 
-            // Слушаем изменения темы в Telegram
             const tg = window.Telegram?.WebApp;
             if (tg && tg.onEvent) {
                 tg.onEvent('themeChanged', applyTheme);
             }
 
-            // Проверяем авторизацию при запуске
             const isAuthed = await checkAuth();
             if (!isAuthed) {
                 console.log("Пользователь не авторизован, показываем экран регистрации");
