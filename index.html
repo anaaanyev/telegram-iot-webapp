@@ -485,7 +485,7 @@
                 switch (deviceType) {
                     case 'climate':
                         showMessage(`Открываем интерфейс климат-контроля для ${device.custom_name}`);
-                        window.location.href = `/devices/climate/index.html?device_id=${encodeURIComponent(device.device_id)}&device_name=${encodeURIComponent(device.custom_name || device.device_id)}`;
+                        window.location.href = `./devices/climate/index.html?device_id=${encodeURIComponent(device.device_id)}&device_name=${encodeURIComponent(device.custom_name || device.device_id)}`;
                         break;
                     case 'smartdim':
                         showMessage(`Открываем интерфейс диммера для ${device.custom_name}`);
