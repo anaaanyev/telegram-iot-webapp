@@ -105,6 +105,11 @@
         async function loadDeviceData() {
             if (!deviceId || !telegramId) return;
 
+            console.log("Загружаем данные для:", {
+                deviceId: deviceId,       // Должно быть "climate01" (или аналогичное)
+                telegramId: telegramId    // Должно быть "303681585" (или ваш ID)
+            });
+
             try {
                 const response = await fetch(`https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/data?telegram_id=${telegramId}`);
                 const data = await response.json();
