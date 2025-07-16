@@ -278,6 +278,7 @@
 
                 if (response.ok && result.authorized) {
                     console.log("Пользователь авторизован, устройства:", result.devices);
+                    console.log("Данные от сервера:", JSON.stringify(result, null, 2));
                     userDevices = result.devices || {};
 
                     // Проверяем, есть ли устройства
