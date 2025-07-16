@@ -120,23 +120,45 @@
                 console.log("Полученные данные:", data);
 
                 if (response.ok) {
+                    // Отладочные логи
+                    console.log("🔍 Отладка данных:", {
+                        temperature: data.temperature,
+                        humidity: data.humidity,
+                        threshold: data.threshold,
+                        temperatureType: typeof data.temperature,
+                        humidityType: typeof data.humidity,
+                        dataKeys: Object.keys(data)
+                    });
+
                     // Обновляем интерфейс полученными данными
-                    if (data.temp !== undefined) {
-                        temp.textContent = Number(data.temp).toFixed(1);
+                    if (data.temperature !== undefined && data.temperature !== null) {
+                        const tempValue = Number(data.temperature).toFixed(1);
+                        console.log("🌡️ Устанавливаем температуру:", tempValue);
+                        temp.textContent = tempValue;
+                    } else {
+                        console.log("❌ Температура не найдена в данных");
                     }
 
-                    if (data.hum !== undefined) {
-                        hum.textContent = Number(data.hum).toFixed(1);
+                    if (data.humidity !== undefined && data.humidity !== null) {
+                        const humValue = Number(data.humidity).toFixed(1);
+                        console.log("💧 Устанавливаем влажность:", humValue);
+                        hum.textContent = humValue;
+                    } else {
+                        console.log("❌ Влажность не найдена в данных");
                     }
 
-                    if (data.threshold !== undefined) {
-                        threshold.textContent = Number(data.threshold).toFixed(0);
+                    if (data.threshold !== undefined && data.threshold !== null) {
+                        const thresholdValue = Number(data.threshold).toFixed(0);
+                        console.log("🎯 Устанавливаем порог:", thresholdValue);
+                        threshold.textContent = thresholdValue;
 
                         // Обновляем слайдер только если пользователь его не двигает
                         if (!userIsMovingSlider) {
                             slider.value = data.threshold;
                             sliderVal.textContent = data.threshold;
                         }
+                    } else {
+                        console.log("❌ Порог не найден в данных");
                     }
 
                     // Убираем сообщения об ошибках после первой успешной загрузки
