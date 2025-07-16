@@ -121,12 +121,12 @@
 
                 if (response.ok) {
                     // Обновляем интерфейс полученными данными
-                    if (data.temperature !== undefined) {
-                        temp.textContent = Number(data.temperature).toFixed(1);
+                    if (data.temp !== undefined) {
+                        temp.textContent = Number(data.temp).toFixed(1);
                     }
 
-                    if (data.humidity !== undefined) {
-                        hum.textContent = Number(data.humidity).toFixed(1);
+                    if (data.hum !== undefined) {
+                        hum.textContent = Number(data.hum).toFixed(1);
                     }
 
                     if (data.threshold !== undefined) {
