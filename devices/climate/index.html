@@ -111,7 +111,7 @@
             });
 
             try {
-                const response = await fetch(`https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/data?telegram_id=${telegramId}`);
+                const response = await fetch(`https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/data?telegram_id=${String(telegramId)}`);
                 const data = await response.json();
 
                 if (response.ok) {
