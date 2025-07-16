@@ -312,6 +312,11 @@
                 const telegramUser = tg.initDataUnsafe?.user;
                 if (!telegramUser) return 'unknown';
 
+                console.log("Загружаем данные для:", {
+                    deviceId: deviceId,       // Должно быть "climate01" (или аналогичное)
+                    telegramId: telegramId    // Должно быть "303681585" (или ваш ID)
+                });
+
                 const response = await fetch(`https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/data?telegram_id=${telegramUser.id}`);
 
                 if (response.ok) {
