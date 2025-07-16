@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IoT Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .hidden {
+            display: none;
+
+        
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-home"></i> IoT Hub</h1>
+            <p>Управление умными устройствами</p>
+        </div>
+
+        <!-- Сообщения об ошибках и успехе -->
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <!-- Форма подключения устройства -->
+        <div class="card" id="connectDeviceCard">
+            <div class="section-title">
+                Подключить устройство
+            </div>
+            <div class="input-group">
+                <input type="text" id="deviceIdInput" placeholder="Введите ID устройства">
+                <button id="connectBtn" onclick="connectDevice()">
+                    Подключить
+                </button>
+            </div>
+        </div>
+
+        <!-- Индикатор загрузки -->
+        <div id="loadingState" class="loading hidden">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Загрузка устройств...</p>
+        </div>
+
+        <!-- Список устройств -->
+        <div id="devicesSection" class="hidden">
+            <div class="section-title">
+                <i class="fas fa-mobile-alt"></i> Мои устройства
+            </div>
+            <div id="devicesContainer"></div>
+        </div>
+
+        <!-- Состояние "нет устройств" -->
+        <div id="noDevicesState" class="empty-state">
+            <p><strong>У вас пока нет подключенных устройств</strong></p>
+            <p>Подключите устройство, чтобы начать им управлять</p>
+        </div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Элементы интерфейса
+        const connectDeviceCard = document.getElementById('connectDeviceCard');
+        const devicesSection = document.getElementById('devicesSection');
+        const noDevicesState = document.getElementById('noDevicesState');
+        const loadingState = document.getElementById('loadingState');
+        const deviceIdInput = document.getElementById('deviceIdInput');
+        const connectBtn = document.getElementById('connectBtn');
+        const devicesContainer = document.getElementById('devicesContainer');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        // Переменные состояния
+        let userDevices = [];
+        let deviceStatuses = new Map();
+
+        // Функция для показа сообщений
+        function showMessage(text, type = 'success') {
+            const messageEl = type === 'success' ? successMessage : errorMessage;
+            messageEl.textContent = text;
+            messageEl.style.display = 'block';
+
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Функция для применения темы
+        function applyTheme() {
+            const tg = window.Telegram?.WebApp;
+            if (tg && tg.colorScheme) {
+                document.body.className = tg.colorScheme === 'dark' ? 'dark-theme' : 'light-theme';
+            } else {
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.body.className = prefersDark ? 'dark-theme' : 'light-theme';
+            }
+        }
+
+        // Функция проверки авторизации и загрузки устройств
+        async function checkAuthAndLoadDevices() {
+            try {
+                loadingState.classList.remove('hidden');
+                noDevicesState.classList.add('hidden');
+                devicesSection.classList.add('hidden');
+
+                const telegramUser = tg.initDataUnsafe?.user;
+                if (!telegramUser) {
+                    console.log("Данные Telegram недоступны");
+                    loadingState.classList.add('hidden');
+                    noDevicesState.classList.remove('hidden');
+                    return;
+                }
+
+                const response = await fetch(`https://iot-backend-bor5.onrender.com/api/auth/check?telegram_id=${telegramUser.id}`);
+                const result = await response.json();
+
+                if (response.ok && result.authorized) {
+                    userDevices = result.devices;
+                    updateDevicesUI();
+
+                    // Запускаем периодическое обновление статусов устройств
+                    startStatusUpdates();
+                } else {
+                    noDevicesState.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Ошибка проверки авторизации:", error);
+                showMessage("Ошибка загрузки устройств", 'error');
+                noDevicesState.classList.remove('hidden');
+            } finally {
+                loadingState.classList.add('hidden');
+            }
+        }
+
+        // Функция для получения статуса устройства
+        async function getDeviceStatus(deviceId) {
+            try {
+                const telegramUser = tg.initDataUnsafe?.user;
+                if (!telegramUser) return 'unknown';
+
+                const response = await fetch(`https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/data?telegram_id=${telegramUser.id}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const now = new Date();
+                    const lastUpdate = new Date(data.timestamp);
+                    const timeDiff = now - lastUpdate;
+
+                    // Если данные старше 5 минут, считаем устройство offline
+                    return timeDiff > 300000 ? 'offline' : 'online';
+                }
+                return 'offline';
+            } catch (error) {
+                return 'unknown';
+            }
+        }
+
+        // Функция для обновления статусов устройств
+        async function updateDeviceStatuses() {
+            for (const [deviceType, group] of Object.entries(userDevices)) {
+                for (const device of group.devices) {
+                    const status = await getDeviceStatus(device.device_id);
+                    deviceStatuses.set(device.device_id, status);
+                }
+            }
+            updateDevicesUI();
+        }
+
+        // Функция для запуска периодического обновления статусов
+        function startStatusUpdates() {
+            // Обновляем сразу
+            updateDeviceStatuses();
+
+            // Затем каждые 30 секунд
+            setInterval(updateDeviceStatuses, 30000);
+        }
+
+        // Функция подключения устройства
+        async function connectDevice() {
+            const deviceId = deviceIdInput.value.trim();
+
+            if (!deviceId) {
+                showMessage("Пожалуйста, введите ID устройства", 'error');
+                return;
+            }
+
+            connectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Подключение...';
+            connectBtn.disabled = true;
+
+            try {
+                const telegramUser = tg.initDataUnsafe?.user;
+                if (!telegramUser) {
+                    throw new Error("Не удалось получить данные пользователя Telegram");
+                }
+
+                const response = await fetch("https://iot-backend-bor5.onrender.com/api/auth/register-device", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        device_id: deviceId,
+                        telegram_id: telegramUser.id,
+                        username: telegramUser.username || '',
+                        first_name: telegramUser.first_name || '',
+                        last_name: telegramUser.last_name || ''
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage("✅ Устройство успешно подключено!");
+                    deviceIdInput.value = "";
+                    await checkAuthAndLoadDevices();
+                } else {
+                    showMessage(`❌ Ошибка: ${result.error || 'Неизвестная ошибка'}`, 'error');
+                }
+            } catch (error) {
+                console.error("Ошибка при подключении устройства:", error);
+                showMessage(`❌ Ошибка подключения: ${error.message}`, 'error');
+            } finally {
+                connectBtn.innerHTML = '<i class="fas fa-link"></i> Подключить';
+                connectBtn.disabled = false;
+            }
+        }
+
+        // Функция обновления интерфейса устройств
+        function updateDevicesUI() {
+            if (!userDevices || Object.keys(userDevices).length === 0) {
+                devicesSection.classList.add('hidden');
+                noDevicesState.classList.remove('hidden');
+                return;
+            }
+
+            devicesSection.classList.remove('hidden');
+            noDevicesState.classList.add('hidden');
+            devicesContainer.innerHTML = '';
+
+            // Группируем устройства по типам и отображаем
+            for (const [deviceType, group] of Object.entries(userDevices)) {
+                const typeInfo = group.type_info;
+                const devices = group.devices;
+
+                // Создаем заголовок группы
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'section-title';
+                groupTitle.innerHTML = `${typeInfo.icon} ${typeInfo.name}`;
+                devicesContainer.appendChild(groupTitle);
+
+                // Создаем контейнер для устройств этой группы
+                const groupContainer = document.createElement('div');
+                groupContainer.className = 'device-grid';
+
+                // Добавляем карточки устройств
+                devices.forEach(device => {
+                    const deviceCard = document.createElement('div');
+                    deviceCard.className = 'device-card';
+
+                    const status = deviceStatuses.get(device.device_id) || 'unknown';
+                    const statusText = status === 'online' ? 'Онлайн' :
+                        status === 'offline' ? 'Офлайн' : 'Неизвестно';
+
+                    deviceCard.innerHTML = `
+                        <div class="device-info">
+                            <div class="device-details">
+                                <div class="device-name">${device.custom_name || device.device_id}</div>
+                                <div class="device-id">device_id: ${device.device_id}</div>
+                                <div class="device-status ${status}">${statusText}</div>
+                            </div>
+                        </div>
+                    `;
+
+                    deviceCard.addEventListener('click', () => {
+                        openDeviceInterface(device);
+                    });
+
+                    groupContainer.appendChild(deviceCard);
+                });
+
+                devicesContainer.appendChild(groupContainer);
+            }
+        }
+
+        // Функция для открытия интерфейса устройства
+        function openDeviceInterface(device) {
+            if (!device) return;
+
+            // Найдем тип устройства
+            let deviceType = null;
+            for (const [type, group] of Object.entries(userDevices)) {
+                if (group.devices.some(d => d.device_id === device.device_id)) {
+                    deviceType = type;
+                    break;
+                }
+            }
+
+            if (deviceType) {
+                // Здесь можно добавить переходы на специализированные страницы
+                switch (deviceType) {
+                    case 'climate':
+                        showMessage(`Открываем интерфейс климат-контроля для ${device.custom_name}`);
+                        window.location.href = `/devices/climate/index.html?device_id=${encodeURIComponent(device.device_id)}&device_name=${encodeURIComponent(device.custom_name || device.device_id)}`;
+                        break;
+                    case 'smartdim':
+                        showMessage(`Открываем интерфейс диммера для ${device.custom_name}`);
+                        // window.location.href = `/devices/smartdim/${device.device_id}`;
+                        break;
+                    default:
+                        showMessage(`Открываем интерфейс устройства ${device.custom_name}`);
+                }
+            }
+        }
+
+        // Обработчик Enter в поле ввода
+        deviceIdInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                connectDevice();
+            }
+        });
+
+        // Инициализация приложения
+        async function initApp() {
+            console.log("IoT Hub WebApp загружен");
+            applyTheme();
+
+            const tg = window.Telegram?.WebApp;
+            if (tg && tg.onEvent) {
+                tg.onEvent('themeChanged', applyTheme);
+            }
+
+            await checkAuthAndLoadDevices();
+        }
+
+        // Запускаем приложение
+        initApp();
+    </script>
+</body>
+
+</html>
