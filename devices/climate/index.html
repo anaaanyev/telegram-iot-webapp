@@ -102,6 +102,7 @@
         }
 
         // Загрузка данных устройства
+        // Загрузка данных устройства
         async function loadDeviceData() {
             if (!deviceId || !telegramId) return;
 
@@ -119,7 +120,30 @@
                 console.log("Полученные данные:", data);
 
                 if (response.ok) {
-                    // ... существующий код обработки данных
+                    // Обновляем интерфейс полученными данными
+                    if (data.temperature !== undefined) {
+                        temp.textContent = Number(data.temperature).toFixed(1);
+                    }
+
+                    if (data.humidity !== undefined) {
+                        hum.textContent = Number(data.humidity).toFixed(1);
+                    }
+
+                    if (data.threshold !== undefined) {
+                        threshold.textContent = Number(data.threshold).toFixed(0);
+
+                        // Обновляем слайдер только если пользователь его не двигает
+                        if (!userIsMovingSlider) {
+                            slider.value = data.threshold;
+                            sliderVal.textContent = data.threshold;
+                        }
+                    }
+
+                    // Убираем сообщения об ошибках после первой успешной загрузки
+                    if (isFirstLoad) {
+                        isFirstLoad = false;
+                        errorMessage.style.display = 'none';
+                    }
                 } else {
                     console.error("Ошибка ответа:", {
                         status: response.status,
