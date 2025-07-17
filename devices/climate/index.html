@@ -120,15 +120,26 @@
                 // console.log("Полученные данные:", data);
 
                 if (response.ok) {
-                    // Отладочные логи
-                    // console.log("🔍 Отладка данных:", {
-                    //     temperature: data.temperature,
-                    //     humidity: data.humidity,
-                    //     threshold: data.threshold,
-                    //     temperatureType: typeof data.temperature,
-                    //     humidityType: typeof data.humidity,
-                    //     dataKeys: Object.keys(data)
-                    // });
+                    // Проверяем, есть ли данные от устройства
+                    const hasRecentData = data.timestamp &&
+                        (new Date() - new Date(data.timestamp)) < 30000; // 30 секунд
+
+                    console.log("🔍 Проверка данных:", {
+                        hasData: Object.keys(data).length > 0,
+                        hasTimestamp: !!data.timestamp,
+                        timestamp: data.timestamp,
+                        timeDiff: data.timestamp ? (new Date() - new Date(data.timestamp)) : null,
+                        hasRecentData: hasRecentData
+                    });
+
+                    // Если нет свежих данных, показываем "--"
+                    if (!hasRecentData) {
+                        console.log("❌ Нет свежих данных от устройства");
+                        temp.textContent = "--";
+                        hum.textContent = "--";
+                        threshold.textContent = "--";
+                        return;
+                    }
 
                     // Обновляем интерфейс полученными данными
                     if (data.temperature !== undefined && data.temperature !== null) {
@@ -137,6 +148,7 @@
                         temp.textContent = tempValue;
                     } else {
                         console.log("❌ Температура не найдена в данных");
+                        temp.textContent = "--";
                     }
 
                     if (data.humidity !== undefined && data.humidity !== null) {
@@ -145,6 +157,7 @@
                         hum.textContent = humValue;
                     } else {
                         console.log("❌ Влажность не найдена в данных");
+                        hum.textContent = "--";
                     }
 
                     if (data.threshold !== undefined && data.threshold !== null) {
@@ -159,6 +172,7 @@
                         }
                     } else {
                         console.log("❌ Порог не найден в данных");
+                        threshold.textContent = "--";
                     }
 
                     // Убираем сообщения об ошибках после первой успешной загрузки
