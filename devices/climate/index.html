@@ -13,6 +13,7 @@
         <div class="header">
             <h1><i class="fas fa-thermometer-half"></i> Климат-контроль</h1>
             <p id="deviceName">Устройство: --</p>
+            <p id="deviceStatus">Статус: <span id="statusText">--</span></p>
         </div>
 
         <div id="errorMessage" class="error-message"></div>
@@ -55,6 +56,12 @@
                     <i class="fas fa-unlink"></i> Отвязать устройство
                 </button>
             </div>
+
+            <div class="section">
+                <button class="btn-secondary" id="backBtn">
+                    <i class="fas fa-arrow-left"></i> Вернуться на главный экран
+                </button>
+            </div>
         </div>
     </div>
 
@@ -65,6 +72,8 @@
 
         // Элементы интерфейса
         const deviceName = document.getElementById('deviceName');
+        const deviceStatus = document.getElementById('deviceStatus');
+        const statusText = document.getElementById('statusText');
         const temp = document.getElementById('temp');
         const hum = document.getElementById('hum');
         const threshold = document.getElementById('threshold');
@@ -72,6 +81,7 @@
         const sliderVal = document.getElementById('sliderVal');
         const saveBtn = document.getElementById('saveBtn');
         const unregisterBtn = document.getElementById('unregisterBtn');
+        const backBtn = document.getElementById('backBtn');
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
 
@@ -80,6 +90,7 @@
         let telegramId = null;
         let isFirstLoad = true;
         let userIsMovingSlider = false;
+        let isDeviceOnline = false;
 
         // Функция для показа сообщений
         function showMessage(text, type = 'success') {
@@ -92,6 +103,30 @@
             }, 5000);
         }
 
+        // Функция для обновления статуса устройства
+        function updateDeviceStatus(online) {
+            isDeviceOnline = online;
+            if (online) {
+                statusText.textContent = 'Онлайн';
+                statusText.style.color = 'green';
+            } else {
+                statusText.textContent = 'Оффлайн';
+                statusText.style.color = 'red';
+            }
+
+            // Блокируем/разблокируем элементы управления
+            slider.disabled = !online;
+            saveBtn.disabled = !online;
+
+            if (!online) {
+                slider.style.opacity = '0.5';
+                saveBtn.style.opacity = '0.5';
+            } else {
+                slider.style.opacity = '1';
+                saveBtn.style.opacity = '1';
+            }
+        }
+
         // Получаем параметры из URL
         function getUrlParams() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -101,7 +136,6 @@
             };
         }
 
-        // Загрузка данных устройства
         // Загрузка данных устройства
         async function loadDeviceData() {
             if (!deviceId || !telegramId) return;
@@ -113,11 +147,7 @@
                 const response = await fetch(url);
                 console.log("HTTP статус:", response.status);
 
-                // Логируем заголовки ответа
-                // console.log("Заголовки ответа:", [...response.headers.entries()]);
-
                 const data = await response.json();
-                // console.log("Полученные данные:", data);
 
                 if (response.ok) {
                     // Проверяем, есть ли данные от устройства
@@ -131,6 +161,9 @@
                         timeDiff: data.timestamp ? (new Date() - new Date(data.timestamp)) : null,
                         hasRecentData: hasRecentData
                     });
+
+                    // Обновляем статус устройства
+                    updateDeviceStatus(hasRecentData);
 
                     // Если нет свежих данных, показываем "--"
                     if (!hasRecentData) {
@@ -186,6 +219,7 @@
                         statusText: response.statusText,
                         data: data
                     });
+                    updateDeviceStatus(false);
                     showMessage(`Ошибка сервера: ${response.status} ${data.error || ''}`, 'error');
                 }
             } catch (error) {
@@ -194,12 +228,18 @@
                     message: error.message,
                     stack: error.stack
                 });
+                updateDeviceStatus(false);
                 showMessage(`Сетевая ошибка: ${error.message}`, 'error');
             }
         }
 
         // Сохранение порога температуры
         async function saveThreshold() {
+            if (!isDeviceOnline) {
+                showMessage('Устройство оффлайн. Невозможно сохранить настройки.', 'error');
+                return;
+            }
+
             const newThreshold = Number(slider.value);
 
             // Валидация значения порога
@@ -248,7 +288,7 @@
 
                 if (response.ok) {
                     tg.showAlert('Устройство успешно отвязано');
-                    window.location.href = '/main.html';
+                    window.location.href = '../../index.html';
                 } else {
                     const result = await response.json();
                     tg.showAlert(result.error || 'Ошибка отвязки');
@@ -257,6 +297,11 @@
                 console.error('Ошибка отвязки:', error);
                 tg.showAlert('Ошибка сети');
             }
+        }
+
+        // Возврат на главный экран
+        function goToMainScreen() {
+            window.location.href = '../../index.html';
         }
 
         // Инициализация приложения
@@ -292,6 +337,7 @@
 
             saveBtn.addEventListener('click', saveThreshold);
             unregisterBtn.addEventListener('click', unregisterDevice);
+            backBtn.addEventListener('click', goToMainScreen);
 
             // Загружаем данные устройства
             await loadDeviceData();
