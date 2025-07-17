@@ -343,8 +343,8 @@
                         timeDiffMinutes: Math.floor(timeDiff / 60000)
                     });
 
-                    // Если данные старше 5 минут, считаем устройство offline
-                    return timeDiff > 300000 ? 'offline' : 'online';
+                    // Если данные старше 30 сек, считаем устройство offline
+                    return timeDiff > 30000 ? 'offline' : 'online';
                 }
 
                 console.log("Ошибка HTTP:", response.status);
