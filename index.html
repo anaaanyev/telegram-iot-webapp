@@ -67,6 +67,7 @@
             padding: 0.2rem 0.5rem;
             border-radius: 4px;
             display: inline-block;
+            margin-bottom: 0.5rem;
         }
 
         .device-status.online {
@@ -82,6 +83,17 @@
         .device-status.unknown {
             background: #fff3cd;
             color: #856404;
+        }
+
+        .device-status.connecting {
+            background: #cce5ff;
+            color: #0066cc;
+        }
+
+        .device-data {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 0.5rem;
         }
 
         .card {
@@ -163,11 +175,70 @@
             color: #666;
             margin: 0;
         }
+
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .connection-status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .connection-status.connecting {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .timestamp {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 0.25rem;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <!-- Индикатор состояния подключения -->
+        <div id="connectionStatus" class="connection-status connecting">
+            <i class="fas fa-spinner fa-spin"></i> Подключение...
+        </div>
+
         <div class="header">
             <h1>🏠 IoT Hub</h1>
             <p>Управление умными устройствами</p>
@@ -226,10 +297,16 @@
         const devicesContainer = document.getElementById('devicesContainer');
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
+        const connectionStatus = document.getElementById('connectionStatus');
 
         // Переменные состояния
         let userDevices = {};
         let deviceStatuses = new Map();
+        let deviceData = new Map();
+        let ws = null;
+        let wsReconnectTimer = null;
+        let wsReconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
 
         // Функция для показа сообщений
         function showMessage(text, type = 'success') {
@@ -250,6 +327,227 @@
             } else {
                 const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
                 document.body.className = prefersDark ? 'dark-theme' : 'light-theme';
+            }
+        }
+
+        // WebSocket функции
+        function initWebSocket() {
+            const telegramUser = tg.initDataUnsafe?.user;
+            if (!telegramUser) {
+                console.log("Не удалось получить данные пользователя Telegram для WebSocket");
+                return;
+            }
+
+            // Определяем протокол и хост для WebSocket
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const host = window.location.hostname === 'localhost' ? 'localhost:3000' : 'iot-backend-bor5.onrender.com';
+            const wsUrl = `${protocol}//${host}`;
+
+            console.log('Подключаемся к WebSocket:', wsUrl);
+
+            try {
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = function () {
+                    console.log('✅ WebSocket подключен');
+                    wsReconnectAttempts = 0;
+                    updateConnectionStatus('connected');
+
+                    // Авторизуемся
+                    ws.send(JSON.stringify({
+                        type: 'auth',
+                        telegram_id: telegramUser.id
+                    }));
+                };
+
+                ws.onmessage = function (event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleWebSocketMessage(data);
+                    } catch (error) {
+                        console.error('Ошибка парсинга WebSocket сообщения:', error);
+                    }
+                };
+
+                ws.onclose = function () {
+                    console.log('📤 WebSocket соединение закрыто');
+                    updateConnectionStatus('disconnected');
+                    scheduleReconnect();
+                };
+
+                ws.onerror = function (error) {
+                    console.error('❌ WebSocket ошибка:', error);
+                    updateConnectionStatus('disconnected');
+                };
+            } catch (error) {
+                console.error('Ошибка создания WebSocket:', error);
+                updateConnectionStatus('disconnected');
+                scheduleReconnect();
+            }
+        }
+
+        function handleWebSocketMessage(data) {
+            console.log('📨 WebSocket сообщение:', data);
+
+            switch (data.type) {
+                case 'auth_success':
+                    console.log('✅ WebSocket авторизация успешна');
+                    break;
+
+                case 'device_update':
+                    handleDeviceUpdate(data.device_id, data.data);
+                    break;
+
+                case 'notification':
+                    handleNotification(data.message);
+                    break;
+
+                case 'pong':
+                    console.log('🏓 WebSocket pong получен');
+                    break;
+
+                case 'error':
+                    console.error('❌ WebSocket ошибка:', data.message);
+                    showMessage(data.message, 'error');
+                    break;
+
+                default:
+                    console.log('❓ Неизвестное WebSocket сообщение:', data);
+            }
+        }
+
+        function handleDeviceUpdate(deviceId, data) {
+            console.log(`📡 Обновление устройства ${deviceId}:`, data);
+
+            // Обновляем данные устройства
+            deviceData.set(deviceId, data);
+
+            // Определяем статус на основе данных
+            const status = determineDeviceStatus(data);
+            deviceStatuses.set(deviceId, status);
+
+            // Обновляем UI
+            updateDeviceCard(deviceId, data, status);
+        }
+
+        function handleNotification(message) {
+            console.log('🔔 Системное уведомление:', message);
+
+            if (message.type === 'device_added') {
+                showMessage(`✅ Устройство "${message.device_name}" добавлено`);
+                // Обновляем список устройств
+                setTimeout(() => {
+                    checkAuthAndLoadDevices();
+                }, 1000);
+            }
+        }
+
+        function determineDeviceStatus(data) {
+            if (!data || Object.keys(data).length === 0) {
+                return 'offline';
+            }
+
+            const timestamp = data.timestamp || data.time || data.lastUpdate;
+            if (!timestamp) {
+                return 'online'; // Есть данные, но нет timestamp
+            }
+
+            const now = new Date();
+            const lastUpdate = new Date(timestamp);
+            const timeDiff = now - lastUpdate;
+
+            // Если данные старше 30 секунд, считаем offline
+            return timeDiff > 30000 ? 'offline' : 'online';
+        }
+
+        function updateDeviceCard(deviceId, data, status) {
+            const deviceCard = document.querySelector(`[data-device-id="${deviceId}"]`);
+            if (!deviceCard) return;
+
+            const statusElement = deviceCard.querySelector('.device-status');
+            const dataElement = deviceCard.querySelector('.device-data');
+            const timestampElement = deviceCard.querySelector('.timestamp');
+
+            if (statusElement) {
+                statusElement.className = `device-status ${status}`;
+                const statusText = status === 'online' ? 'Онлайн' :
+                    status === 'offline' ? 'Офлайн' : 'Неизвестно';
+                statusElement.textContent = statusText;
+            }
+
+            if (dataElement && data) {
+                // Показываем основные данные (исключая служебные поля)
+                const displayData = {};
+                Object.keys(data).forEach(key => {
+                    if (!['timestamp', 'device_id', 'time', 'lastUpdate'].includes(key)) {
+                        displayData[key] = data[key];
+                    }
+                });
+
+                if (Object.keys(displayData).length > 0) {
+                    const dataText = Object.entries(displayData)
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join(', ');
+                    dataElement.textContent = dataText;
+                    dataElement.style.display = 'block';
+                } else {
+                    dataElement.style.display = 'none';
+                }
+            }
+
+            if (timestampElement && data.timestamp) {
+                const lastUpdate = new Date(data.timestamp);
+                timestampElement.textContent = `Обновлено: ${lastUpdate.toLocaleTimeString()}`;
+            }
+
+            // Добавляем анимацию обновления
+            deviceCard.classList.add('pulse');
+            setTimeout(() => {
+                deviceCard.classList.remove('pulse');
+            }, 1000);
+        }
+
+        function updateConnectionStatus(status) {
+            const statusElement = connectionStatus;
+            statusElement.className = `connection-status ${status}`;
+
+            switch (status) {
+                case 'connected':
+                    statusElement.innerHTML = '<i class="fas fa-wifi"></i> Подключено';
+                    break;
+                case 'disconnected':
+                    statusElement.innerHTML = '<i class="fas fa-wifi-slash"></i> Отключено';
+                    break;
+                case 'connecting':
+                    statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Подключение...';
+                    break;
+            }
+        }
+
+        function scheduleReconnect() {
+            if (wsReconnectTimer) {
+                clearTimeout(wsReconnectTimer);
+            }
+
+            if (wsReconnectAttempts < maxReconnectAttempts) {
+                wsReconnectAttempts++;
+                const delay = Math.min(1000 * Math.pow(2, wsReconnectAttempts), 30000);
+
+                console.log(`🔄 Попытка переподключения ${wsReconnectAttempts}/${maxReconnectAttempts} через ${delay}ms`);
+                updateConnectionStatus('connecting');
+
+                wsReconnectTimer = setTimeout(() => {
+                    initWebSocket();
+                }, delay);
+            } else {
+                console.log('❌ Максимальное количество попыток переподключения превышено');
+                updateConnectionStatus('disconnected');
+            }
+        }
+
+        function sendWebSocketPing() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'ping' }));
             }
         }
 
@@ -278,7 +576,6 @@
 
                 if (response.ok && result.authorized) {
                     console.log("Пользователь авторизован, устройства:", result.devices);
-                    // console.log("Данные от сервера:", JSON.stringify(result, null, 2));
                     userDevices = result.devices || {};
 
                     // Проверяем, есть ли устройства
@@ -287,8 +584,8 @@
 
                     if (hasDevices) {
                         updateDevicesUI();
-                        // Запускаем периодическое обновление статусов устройств
-                        startStatusUpdates();
+                        // Запрашиваем начальные данные для всех устройств
+                        await loadInitialDeviceData();
                     } else {
                         console.log("У пользователя нет устройств");
                         noDevicesState.classList.remove('hidden');
@@ -306,98 +603,33 @@
             }
         }
 
-        // Функция для получения статуса устройства
-        async function getDeviceStatus(deviceId) {
-            try {
-                const telegramUser = tg.initDataUnsafe?.user;
-                if (!telegramUser) return 'unknown';
+        // Функция для загрузки начальных данных устройств
+        async function loadInitialDeviceData() {
+            const telegramUser = tg.initDataUnsafe?.user;
+            if (!telegramUser) return;
 
-                console.log("Загружаем данные для:", {
-                    deviceId: deviceId,
-                    telegramId: telegramUser.id
-                });
-
-                const response = await fetch(`https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/data?telegram_id=${telegramUser.id}`);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log("Данные устройства:", data); // Добавим отладку
-
-                    // Проверяем разные варианты timestamp
-                    const timestamp = data.timestamp || data.time || data.lastUpdate;
-
-                    if (!timestamp) {
-                        console.log("Timestamp отсутствует в данных");
-                        // Если нет timestamp, но есть данные - считаем online
-                        return Object.keys(data).length > 0 ? 'online' : 'offline';
-                    }
-
-                    const now = new Date();
-                    const lastUpdate = new Date(timestamp);
-                    const timeDiff = now - lastUpdate;
-
-                    console.log("Анализ времени:", {
-                        now: now.toISOString(),
-                        lastUpdate: lastUpdate.toISOString(),
-                        timeDiff: timeDiff,
-                        timeDiffMinutes: Math.floor(timeDiff / 60000)
-                    });
-
-                    // Если данные старше 30 сек, считаем устройство offline
-                    return timeDiff > 15000 ? 'offline' : 'online';
-                }
-
-                console.log("Ошибка HTTP:", response.status);
-                return 'offline';
-            } catch (error) {
-                console.error("Ошибка получения статуса:", error);
-                return 'unknown';
-            }
-        }
-
-        // Добавьте эту функцию для детального анализа статуса
-        function getDetailedStatus(data) {
-            if (!data || Object.keys(data).length === 0) {
-                return { status: 'offline', details: 'Нет данных' };
-            }
-
-            const timestamp = data.timestamp || data.time || data.lastUpdate;
-            if (!timestamp) {
-                return { status: 'online', details: 'Данные без времени' };
-            }
-
-            const now = new Date();
-            const lastUpdate = new Date(timestamp);
-            const timeDiff = now - lastUpdate;
-            const minutes = Math.floor(timeDiff / 60000);
-
-            if (timeDiff > 15000) { // 15 секунд
-                return { status: 'offline', details: `Офлайн ${seconds} сек` };
-            } else {
-                return { status: 'online', details: 'Только что' };
-            }
-        }
-
-        // Функция для обновления статусов устройств
-        async function updateDeviceStatuses() {
-            console.log("Обновляем статусы устройств...");
             for (const [deviceType, group] of Object.entries(userDevices)) {
                 for (const device of group.devices) {
-                    const status = await getDeviceStatus(device.device_id);
-                    deviceStatuses.set(device.device_id, status);
+                    try {
+                        const response = await fetch(`https://iot-backend-bor5.onrender.com/api/devices/${device.device_id}/data?telegram_id=${telegramUser.id}`);
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            deviceData.set(device.device_id, data);
+                            const status = determineDeviceStatus(data);
+                            deviceStatuses.set(device.device_id, status);
+                        } else {
+                            deviceStatuses.set(device.device_id, 'offline');
+                        }
+                    } catch (error) {
+                        console.error(`Ошибка загрузки данных для ${device.device_id}:`, error);
+                        deviceStatuses.set(device.device_id, 'unknown');
+                    }
                 }
             }
+
+            // Обновляем UI после загрузки всех данных
             updateDevicesUI();
-        }
-
-        // Функция для запуска периодического обновления статусов
-        function startStatusUpdates() {
-            console.log("Запускаем периодическое обновление статусов...");
-            // Обновляем сразу
-            updateDeviceStatuses();
-
-            // Затем каждые 30 секунд
-            setInterval(updateDeviceStatuses, 15000);
         }
 
         // Функция подключения устройства
@@ -438,7 +670,7 @@
                     showMessage("✅ Устройство успешно подключено!");
                     deviceIdInput.value = "";
 
-                    // Принудительно обновляем список устройств
+                    // Обновляем список устройств
                     console.log("Обновляем список устройств после подключения...");
                     await checkAuthAndLoadDevices();
                 } else {
@@ -448,7 +680,7 @@
                 console.error("Ошибка при подключении устройства:", error);
                 showMessage(`❌ Ошибка подключения: ${error.message}`, 'error');
             } finally {
-                connectBtn.innerHTML = '<i class="fas fa-link"></i> Подключить';
+                connectBtn.innerHTML = 'Подключить';
                 connectBtn.disabled = false;
             }
         }
@@ -490,20 +722,42 @@
                 devices.forEach(device => {
                     const deviceCard = document.createElement('div');
                     deviceCard.className = 'device-card';
+                    deviceCard.setAttribute('data-device-id', device.device_id);
 
                     const status = deviceStatuses.get(device.device_id) || 'unknown';
                     const statusText = status === 'online' ? 'Онлайн' :
                         status === 'offline' ? 'Офлайн' : 'Неизвестно';
 
+                    const data = deviceData.get(device.device_id) || {};
+                    const displayData = {};
+                    Object.keys(data).forEach(key => {
+                        if (!['timestamp', 'device_id', 'time', 'lastUpdate'].includes(key)) {
+                            displayData[key] = data[key];
+                        }
+                    });
+
+                    const dataText = Object.keys(displayData).length > 0 ?
+                        Object.entries(displayData)
+                            .map(([key, value]) => `${key}: ${value}`)
+                            .join(', ') : '';
+
+                    const timestampText = data.timestamp ?
+                        `Обновлено: ${new Date(data.timestamp).toLocaleTimeString()}` : '';
+
                     deviceCard.innerHTML = `
                         <div class="device-info">
                             <div class="device-details">
                                 <div class="device-name">${device.custom_name || device.device_id}</div>
-                                <div class="device-id">device_id: ${device.device_id}</div>
+                                <div class="device-id">ID: ${device.device_id}</div>
                                 <div class="device-status ${status}">
                                     ${statusText}
-                                    <span class="status-details" id="status-${device.device_id}"></span>
-                                    </div>
+                                </div>
+                                <div class="device-data" style="display: ${dataText ? 'block' : 'none'}">
+                                    ${dataText}
+                                </div>
+                                <div class="timestamp" style="display: ${timestampText ? 'block' : 'none'}">
+                                    ${timestampText}
+                                </div>
                             </div>
                         </div>
                     `;
@@ -541,7 +795,7 @@
                         break;
                     case 'smartdim':
                         showMessage(`Открываем интерфейс диммера для ${device.custom_name}`);
-                        // window.location.href = `/devices/smartdim/${device.device_id}`;
+                        // window.location.href = `./devices/smartdim/index.html?device_id=${encodeURIComponent(device.device_id)}&device_name=${encodeURIComponent(device.custom_name || device.device_id)}`;
                         break;
                     default:
                         showMessage(`Открываем интерфейс устройства ${device.custom_name}`);
@@ -566,11 +820,51 @@
                 tg.onEvent('themeChanged', applyTheme);
             }
 
+            // Инициализируем WebSocket
+            initWebSocket();
+
+            // Загружаем устройства
             await checkAuthAndLoadDevices();
+
+            // Запускаем периодический ping для поддержания соединения
+            setInterval(sendWebSocketPing, 30000);
         }
 
-        // Запускаем приложение
-        initApp();
+        // Очистка при закрытии страницы
+        window.addEventListener('beforeunload', () => {
+            if (ws) {
+                ws.close();
+            }
+            if (wsReconnectTimer) {
+                clearTimeout(wsReconnectTimer);
+            }
+        });
+
+        // Обработка изменения состояния сети
+        window.addEventListener('online', () => {
+            console.log('🌐 Сеть восстановлена');
+            showMessage('Подключение к сети восстановлено');
+            // Если WebSocket не подключен - пробуем снова
+            if (!ws || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
+                scheduleReconnect();
+            } else {
+                updateConnectionStatus('connected');
+            }
+            // Перезагрузим данные устройств на всякий случай
+            checkAuthAndLoadDevices();
+        });
+
+        // Потеря интернет-соединения
+        window.addEventListener('offline', () => {
+            console.log('🚫 Соединение с сетью потеряно');
+            showMessage('Нет подключения к интернету.', 'error');
+            updateConnectionStatus('disconnected');
+        });
+
+        // Запускаем приложение после загрузки DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
     </script>
 </body>
 
