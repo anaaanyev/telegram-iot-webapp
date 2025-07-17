@@ -826,8 +826,24 @@
             // Загружаем устройства
             await checkAuthAndLoadDevices();
 
+            // Добавьте в initApp()
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    // При возвращении на вкладку - обновить данные
+                    checkAuthAndLoadDevices();
+                }
+            });
+
             // Запускаем периодический ping для поддержания соединения
             setInterval(sendWebSocketPing, 30000);
+
+            // Периодическая проверка статуса устройств (каждые 30 секунд)
+            setInterval(async () => {
+                if (Object.keys(userDevices).length > 0) {
+                    console.log("Периодическая проверка статуса устройств...");
+                    await loadInitialDeviceData();
+                }
+            }, 30000); // 30 секунд
         }
 
         // Очистка при закрытии страницы
