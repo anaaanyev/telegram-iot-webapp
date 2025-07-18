@@ -554,6 +554,14 @@
 
         // Возврат на главный экран
         function goToMainScreen() {
+            // Сохраняем последние данные в sessionStorage перед переходом
+            const stateToSave = {
+                deviceData: Array.from(deviceData.entries()),
+                deviceStatuses: Array.from(deviceStatuses.entries()),
+                lastUpdate: new Date().getTime()
+            };
+            sessionStorage.setItem('iotHubState', JSON.stringify(stateToSave));
+            
             window.location.href = '../index.html';
         }
 
@@ -594,7 +602,7 @@
             // Загружаем начальные данные устройства
             await loadDeviceData();
 
-            // Функция обновления заливки ползунка
+            // Функция обновления заливку ползунка
             function updateSliderFill(value) {
                 const percent = (value - slider.min) / (slider.max - slider.min) * 100;
                 slider.style.background = `linear-gradient(to right, 

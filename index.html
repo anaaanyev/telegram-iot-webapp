@@ -838,6 +838,26 @@
             console.log("IoT Hub WebApp загружен");
             applyTheme();
 
+            // Попытка восстановить состояние
+            try {
+                const savedState = sessionStorage.getItem('iotHubState');
+                if (savedState) {
+                    const state = JSON.parse(savedState);
+                    const timeSinceUpdate = new Date().getTime() - state.lastUpdate;
+
+                    // Восстанавливаем состояние только если прошло менее 10 секунд
+                    if (timeSinceUpdate < 10000) {
+                        deviceData = new Map(state.deviceData);
+                        deviceStatuses = new Map(state.deviceStatuses);
+                        console.log("Состояние восстановлено из sessionStorage");
+                    }
+                    // Очищаем сохраненное состояние
+                    sessionStorage.removeItem('iotHubState');
+                }
+            } catch (error) {
+                console.error("Ошибка восстановления состояния:", error);
+            }
+
             const tg = window.Telegram?.WebApp;
             if (tg && tg.onEvent) {
                 tg.onEvent('themeChanged', applyTheme);
