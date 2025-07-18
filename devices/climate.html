@@ -377,10 +377,11 @@
                         console.log("🎯 Устанавливаем порог:", thresholdValue);
                         threshold.textContent = thresholdValue;
 
-                        // Обновляем слайдер только если пользователь его не двигает
-                        if (!userIsMovingSlider) {
+                        // Убираем автоматическое обновление ползунка
+                        if (isFirstLoad) {
                             slider.value = data.threshold;
                             sliderVal.textContent = data.threshold;
+                            isFirstLoad = false;
                         }
                     } else {
                         console.log("❌ Порог не найден в данных");
