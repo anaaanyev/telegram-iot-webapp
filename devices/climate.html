@@ -467,7 +467,7 @@
 
                 if (response.ok) {
                     tg.showAlert('Устройство успешно отвязано');
-                    window.location.href = '../../index.html';
+                    window.location.href = '../index.html';
                 } else {
                     const result = await response.json();
                     tg.showAlert(result.error || 'Ошибка отвязки');
@@ -480,7 +480,7 @@
 
         // Возврат на главный экран
         function goToMainScreen() {
-            window.location.href = '../../index.html';
+            window.location.href = '../index.html';
         }
 
         // Инициализация приложения
