@@ -608,28 +608,51 @@
             const telegramUser = tg.initDataUnsafe?.user;
             if (!telegramUser) return;
 
+            const deviceIds = [];
+            // Собираем все ID устройств
             for (const [deviceType, group] of Object.entries(userDevices)) {
                 for (const device of group.devices) {
-                    try {
-                        const response = await fetch(`https://iot-backend-bor5.onrender.com/api/devices/${device.device_id}/data?telegram_id=${telegramUser.id}`);
-
-                        if (response.ok) {
-                            const data = await response.json();
-                            deviceData.set(device.device_id, data);
-                            const status = determineDeviceStatus(data);
-                            deviceStatuses.set(device.device_id, status);
-                        } else {
-                            deviceStatuses.set(device.device_id, 'offline');
-                        }
-                    } catch (error) {
-                        console.error(`Ошибка загрузки данных для ${device.device_id}:`, error);
-                        deviceStatuses.set(device.device_id, 'unknown');
-                    }
+                    deviceIds.push(device.device_id);
                 }
             }
 
-            // Обновляем UI после загрузки всех данных
-            updateDevicesUI();
+            // Делим на чанки по 10 устройств
+            const chunkSize = 10;
+            const chunks = [];
+            for (let i = 0; i < deviceIds.length; i += chunkSize) {
+                chunks.push(deviceIds.slice(i, i + chunkSize));
+            }
+
+            try {
+                // Параллельно загружаем данные чанками
+                const responses = await Promise.all(chunks.map(chunk =>
+                    fetch("https://iot-backend-bor5.onrender.com/api/devices/batch-data", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            telegram_id: telegramUser.id,
+                            device_ids: chunk
+                        })
+                    }).then(r => r.json())
+                ));
+
+                // Объединяем результаты
+                const allData = Object.assign({}, ...responses);
+
+                // Обновляем состояние устройств
+                for (const [deviceId, data] of Object.entries(allData)) {
+                    deviceData.set(deviceId, data);
+                    const status = determineDeviceStatus(data);
+                    deviceStatuses.set(deviceId, status);
+                }
+
+                // Обновляем UI
+                updateDevicesUI();
+
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                showMessage('Ошибка загрузки данных устройств', 'error');
+            }
         }
 
         // Функция подключения устройства
