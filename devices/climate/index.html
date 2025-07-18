@@ -51,16 +51,20 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
+            gap: 12px;
             margin-bottom: 24px;
+            width: 100%;
         }
 
         .stat-card {
             background: var(--tg-theme-bg-color);
-            padding: 16px;
+            padding: 12px;
             border-radius: 12px;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            /* Добавляем перенос слов */
+            word-wrap: break-word;
+            overflow: hidden;
         }
 
         .stat-label {
@@ -99,7 +103,8 @@
             height: 6px;
             border-radius: 3px;
             -webkit-appearance: none;
-            background: linear-gradient(to right, var(--tg-theme-button-color) 0%, var(--tg-theme-button-color) 50%, #ddd 50%, #ddd 100%);
+            background: var(--tg-theme-hint-color);
+            position: relative;
         }
 
         input[type="range"]::-webkit-slider-thumb {
@@ -110,6 +115,18 @@
             background: var(--tg-theme-button-color);
             cursor: pointer;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Добавляем активное заполнение ползунка */
+        input[type="range"]:before {
+            content: '';
+            position: absolute;
+            height: 100%;
+            left: 0;
+            background: var(--tg-theme-button-color);
+            border-radius: 3px;
         }
 
         .btn-primary,
@@ -487,6 +504,15 @@
             // Настройка обработчиков событий
             slider.addEventListener('input', () => {
                 sliderVal.textContent = slider.value;
+
+                // Обновляем заполнение ползунка
+                const value = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+                slider.style.setProperty('--fill-percent', `${value}%`);
+                slider.style.background = `linear-gradient(to right, 
+                    var(--tg-theme-button-color) 0%, 
+                    var(--tg-theme-button-color) ${value}%, 
+                    var(--tg-theme-hint-color) ${value}%, 
+                    var(--tg-theme-hint-color) 100%)`;
             });
 
             slider.addEventListener('mousedown', () => {
@@ -500,6 +526,14 @@
             saveBtn.addEventListener('click', saveThreshold);
             unregisterBtn.addEventListener('click', unregisterDevice);
             backBtn.addEventListener('click', goToMainScreen);
+
+            // Устанавливаем начальное заполнение
+            const initialValue = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+            slider.style.background = `linear-gradient(to right, 
+                var(--tg-theme-button-color) 0%, 
+                var(--tg-theme-button-color) ${initialValue}%, 
+                var(--tg-theme-hint-color) ${initialValue}%, 
+                var(--tg-theme-hint-color) 100%)`;
 
             // Загружаем данные устройства
             await loadDeviceData();
