@@ -41,7 +41,8 @@
             background: #f5f5f5;
             border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 1rem;
+            position: relative;
+            padding: 0.8rem;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
         }
@@ -49,6 +50,41 @@
         .device-card:hover {
             background: #e8e8e8;
             transform: translateY(-2px);
+        }
+
+        .device-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .device-name-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .device-status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .device-status-indicator.online {
+            background: #2ecc71;
+            box-shadow: 0 0 4px rgba(46, 204, 113, 0.5);
+        }
+
+        .device-status-indicator.offline {
+            background: #e74c3c;
+            box-shadow: 0 0 4px rgba(231, 76, 60, 0.5);
+        }
+
+        .device-status-indicator.unknown {
+            background: #f1c40f;
+            box-shadow: 0 0 4px rgba(241, 196, 15, 0.5);
         }
 
         .device-name {
@@ -788,18 +824,21 @@
 
                     deviceCard.innerHTML = `
                         <div class="device-info">
-                            <div class="device-details">
-                                <div class="device-name">${device.custom_name || device.device_id}</div>
+                            <div class="device-header">
+                                <div class="device-name-container">
+                                    <div class="device-name">${device.custom_name || device.device_id}</div>
+                                    <div class="device-status-indicator ${status}"></div>
+                                </div>
                                 <div class="device-id">ID: ${device.device_id}</div>
-                                <div class="device-status ${status}">
-                                    ${statusText}
-                                </div>
-                                <div class="device-data" style="display: ${dataText ? 'block' : 'none'}">
-                                    ${formatDeviceData(deviceType, dataText)}
-                                </div>
-                                <div class="timestamp" style="display: ${timestampText ? 'block' : 'none'}">
-                                    ${timestampText}
-                                </div>
+                            </div>
+                            <div class="device-status ${status}">
+                                ${statusText}
+                            </div>
+                            <div class="device-data" style="display: ${dataText ? 'block' : 'none'}">
+                                ${formatDeviceData(deviceType, dataText)}
+                            </div>
+                            <div class="timestamp" style="display: ${timestampText ? 'block' : 'none'}">
+                                ${timestampText}
                             </div>
                         </div>
                     `;
