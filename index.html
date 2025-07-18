@@ -708,6 +708,25 @@
             }
         }
 
+        // Добавьте эту функцию перед updateDevicesUI
+        function formatDeviceData(deviceType, dataText) {
+            if (!dataText) return '';
+
+            switch (deviceType) {
+                case 'climate':
+                    return `TEMP: ${dataText.match(/temperature:\s*([\d.]+)/)?.[1] || ''}°C, 
+                    HUM: ${dataText.match(/humidity:\s*([\d.]+)/)?.[1] || ''}%, 
+                    LIM: ${dataText.match(/threshold:\s*([\d.]+)/)?.[1] || ''}°C`;
+
+                case 'smartdim':
+                    return `Яркость: ${dataText.match(/brightness:\s*([\d.]+)/)?.[1] || ''}%, 
+                    Режим: ${dataText.match(/mode:\s*([^,]+)/)?.[1] || 'Ручной'}`;
+
+                default:
+                    return dataText; // Для неизвестных типов показываем как есть
+            }
+        }
+
         // Функция обновления интерфейса устройств
         function updateDevicesUI() {
             console.log("Обновляем UI устройств:", userDevices);
@@ -771,19 +790,13 @@
                         <div class="device-info">
                             <div class="device-details">
                                 <div class="device-name">${device.custom_name || device.device_id}</div>
-                                <div class="device-id">device_id: ${device.device_id}</div>
+                                <div class="device-id">ID: ${device.device_id}</div>
                                 <div class="device-status ${status}">
                                     ${statusText}
                                 </div>
                                 <div class="device-data" style="display: ${dataText ? 'block' : 'none'}">
-                                    ${dataText
-                                    ? `TEMP: ${dataText.match(/temperature:\s*([\d.]+)/)?.[1] || ''}°C, 
-                                        HUM: ${dataText.match(/humidity:\s*([\d.]+)/)?.[1] || ''}%, 
-                                        LIM: ${dataText.match(/threshold:\s*([\d.]+)/)?.[1] || ''}°C`
-                                        : ''
-                                    }
+                                    ${formatDeviceData(deviceType, dataText)}
                                 </div>
-
                                 <div class="timestamp" style="display: ${timestampText ? 'block' : 'none'}">
                                     ${timestampText}
                                 </div>
