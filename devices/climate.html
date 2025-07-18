@@ -381,6 +381,15 @@
                         if (isFirstLoad) {
                             slider.value = data.threshold;
                             sliderVal.textContent = data.threshold;
+
+                            // Обновляем заливку после установки значения
+                            const value = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+                            slider.style.background = `linear-gradient(to right,
+                                var(--tg-theme-button-color) 0%, 
+                                var(--tg-theme-button-color) ${value}%, 
+                                var(--tg-theme-hint-color) ${value}%, 
+                                var(--tg-theme-hint-color) 100%)`;
+                                
                             isFirstLoad = false;
                         }
                     } else {
@@ -502,42 +511,37 @@
             }
             telegramId = telegramUser.id;
 
-            // Настройка обработчиков событий
+            // Настройка обработчиков событий для ползунка
             slider.addEventListener('input', () => {
                 sliderVal.textContent = slider.value;
-
-                // Обновляем заполнение ползунка
-                const value = (slider.value - slider.min) / (slider.max - slider.min) * 100;
-                slider.style.setProperty('--fill-percent', `${value}%`);
-                slider.style.background = `linear-gradient(to right, 
-                    var(--tg-theme-button-color) 0%, 
-                    var(--tg-theme-button-color) ${value}%, 
-                    var(--tg-theme-hint-color) ${value}%, 
-                    var(--tg-theme-hint-color) 100%)`;
+                updateSliderFill(slider.value);
             });
 
-            slider.addEventListener('mousedown', () => {
-                userIsMovingSlider = true;
-            });
+            slider.addEventListener('mousedown', () => userIsMovingSlider = true);
+            slider.addEventListener('mouseup', () => userIsMovingSlider = false);
+            slider.addEventListener('touchstart', () => userIsMovingSlider = true);
+            slider.addEventListener('touchend', () => userIsMovingSlider = false);
 
-            slider.addEventListener('mouseup', () => {
-                userIsMovingSlider = false;
-            });
-
+            // Обработчики кнопок
             saveBtn.addEventListener('click', saveThreshold);
             unregisterBtn.addEventListener('click', unregisterDevice);
             backBtn.addEventListener('click', goToMainScreen);
 
-            // Устанавливаем начальное заполнение
-            const initialValue = (slider.value - slider.min) / (slider.max - slider.min) * 100;
-            slider.style.background = `linear-gradient(to right, 
-                var(--tg-theme-button-color) 0%, 
-                var(--tg-theme-button-color) ${initialValue}%, 
-                var(--tg-theme-hint-color) ${initialValue}%, 
-                var(--tg-theme-hint-color) 100%)`;
-
-            // Загружаем данные устройства
+            // Загружаем начальные данные устройства
             await loadDeviceData();
+
+            // Функция обновления заливки ползунка
+            function updateSliderFill(value) {
+                const percent = (value - slider.min) / (slider.max - slider.min) * 100;
+                slider.style.background = `linear-gradient(to right, 
+            var(--tg-theme-button-color) 0%, 
+            var(--tg-theme-button-color) ${percent}%, 
+            var(--tg-theme-hint-color) ${percent}%, 
+            var(--tg-theme-hint-color) 100%)`;
+            }
+
+            // Устанавливаем начальную заливку после загрузки данных
+            updateSliderFill(slider.value);
 
             // Запускаем периодическое обновление
             setInterval(loadDeviceData, 5000);
