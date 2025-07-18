@@ -771,16 +771,22 @@
                         <div class="device-info">
                             <div class="device-details">
                                 <div class="device-name">${device.custom_name || device.device_id}</div>
-                                <div class="device-id">ID: ${device.device_id}</div>
+                                <div class="device-id">device_id: ${device.device_id}</div>
                                 <div class="device-status ${status}">
                                     ${statusText}
                                 </div>
                                 <div class="device-data" style="display: ${dataText ? 'block' : 'none'}">
-                                    ${dataText}
+                                    ${dataText
+                                    ? `TEMP: ${dataText.match(/temperature:\s*([\d.]+)/)?.[1] || ''}°C, 
+                                        HUM: ${dataText.match(/humidity:\s*([\d.]+)/)?.[1] || ''}%, 
+                                        LIM: ${dataText.match(/threshold:\s*([\d.]+)/)?.[1] || ''}°C`
+                                        : ''
+                                    }
                                 </div>
-                                <div class="timestamp" style="display: ${timestampText ? 'block' : 'none'}">
-                                    ${timestampText}
-                                </div>
+
+                                // <div class="timestamp" style="display: ${timestampText ? 'block' : 'none'}">
+                                //     ${timestampText}
+                                // </div>
                             </div>
                         </div>
                     `;
