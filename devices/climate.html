@@ -270,6 +270,7 @@
         let isFirstLoad = true;
         let userIsMovingSlider = false;
         let isDeviceOnline = false;
+        let isSaving = false; // Add this to the state variables at the top
 
         // Функция для показа сообщений
         function showMessage(text, type = 'success') {
@@ -317,7 +318,7 @@
 
         // Загрузка данных устройства
         async function loadDeviceData() {
-            if (!deviceId || !telegramId) return;
+            if (!deviceId || !telegramId || isSaving) return; // Skip updates while saving
 
             const url = `https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/data?telegram_id=${telegramId}`;
             console.log("Отправка запроса на:", url);
@@ -429,15 +430,18 @@
                 return;
             }
 
-            const newThreshold = Number(slider.value);
-
-            // Валидация значения порога
-            if (isNaN(newThreshold) || newThreshold < 0 || newThreshold > 40) {
-                showMessage('Некорректное значение порога', 'error');
-                return;
-            }
+            isSaving = true; // Set flag before saving
+            saveBtn.disabled = true; // Disable button while saving
 
             try {
+                const newThreshold = Number(slider.value);
+
+                // Валидация значения порога
+                if (isNaN(newThreshold) || newThreshold < 0 || newThreshold > 40) {
+                    showMessage('Некорректное значение порога', 'error');
+                    return;
+                }
+
                 const response = await fetch(`https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/settings`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
@@ -457,6 +461,9 @@
             } catch (error) {
                 console.error('Ошибка сохранения:', error);
                 showMessage('Ошибка сети', 'error');
+            } finally {
+                isSaving = false; // Reset flag after saving
+                saveBtn.disabled = false; // Re-enable button
             }
         }
 
