@@ -640,16 +640,34 @@
             const deviceNameInput = document.getElementById('deviceNameInput');
             deviceNameInput.value = deviceNameValue;
 
-            // Добавляем обработчик для скрытия клавиатуры
+            // Обработчики для скрытия клавиатуры
             deviceNameInput.addEventListener('blur', function() {
-                // Этот трюк заставляет клавиатуру скрыться
+                // Специальный хак для iOS
+                if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                    deviceNameInput.style.transform = 'translateY(0px)';
+                    setTimeout(() => {
+                        window.scrollTo(0, 0);
+                    }, 100);
+                }
                 document.activeElement.blur();
             });
 
-            // Добавляем обработчик на enter для скрытия клавиатуры
-            deviceNameInput.addEventListener('keyup', function(event) {
-                if (event.key === 'Enter') {
+            // Добавляем обработчик на весь документ для iOS
+            document.addEventListener('touchend', function(e) {
+                if (e.target !== deviceNameInput) {
                     deviceNameInput.blur();
+                    if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                        window.scrollTo(0, 0);
+                    }
+                }
+            });
+
+            deviceNameInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter' || event.keyCode === 13) {
+                    this.blur();
+                    if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                        window.scrollTo(0, 0);
+                    }
                 }
             });
 
