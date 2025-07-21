@@ -15,7 +15,7 @@
 
         .container {
             max-width: 100%;
-            padding: 1rem;
+            padding-bottom: 1rem;
             box-sizing: border-box;
         }
 
@@ -146,15 +146,15 @@
             flex: 1;
             padding: 0.5rem;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 9px;
         }
 
         .input-group button {
             padding: 0.5rem 1rem;
-            background: #007bff;
+            background: #8c52ff;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 9px;
             cursor: pointer;
         }
 
@@ -206,7 +206,7 @@
         }
 
         .header p {
-            color: #666;
+            color: #000000;
             margin: 0;
         }
 
@@ -312,32 +312,63 @@
                 transform: translateY(20px);
             }
         }
+
+        .gradient-container {
+            background: linear-gradient(90deg, #8c52ff 0%, #ffffff 100%);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #000000;
+        }
+
+        .gradient-container .section-title {
+            color: #000000;
+        }
+
+        /* Убираем стиль карточки в gradient-container */
+        .gradient-container #connectDeviceCard {
+            background: transparent;
+            box-shadow: none;
+            border: none;
+            padding: 0;
+        }
+
+        /* Обновляем стиль кнопки */
+        .input-group button {
+            padding: 0.5rem 1rem;
+            background: #8c52ff;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
 <body>
     <div id="notificationContainer" class="notification-container"></div>
     <div class="container">
-        <!-- Индикатор состояния подключения -->
-        <div id="connectionStatus" class="connection-status connecting">
-            <i class="fas fa-spinner fa-spin"></i> Подключение...
-        </div>
-
-        <div class="header">
-            <h1>🏠 IoT Hub</h1>
-            <p>Управление умными устройствами</p>
-        </div>
-
-        <!-- Форма подключения устройства -->
-        <div class="card" id="connectDeviceCard">
-            <div class="section-title">
-                🔧 Подключить устройство
+        <div class="gradient-container">
+            <!-- Индикатор состояния подключения -->
+            <div id="connectionStatus" class="connection-status connecting">
+                <i class="fas fa-spinner fa-spin"></i>
             </div>
-            <div class="input-group">
-                <input type="text" id="deviceIdInput" placeholder="Введите ID устройства">
-                <button id="connectBtn" onclick="connectDevice()">
-                    Подключить
-                </button>
+
+            <div class="header">
+                <h1>🏠 IoT Hub</h1>
+                <p>Управление умными устройствами</p>
+            </div>
+
+            <!-- Форма подключения устройства -->
+            <div class="card" id="connectDeviceCard">
+                <div class="section-title">
+                    🔧 Подключить устройство
+                </div>
+                <div class="input-group">
+                    <input type="text" id="deviceIdInput" placeholder="Введите ID устройства">
+                    <button id="connectBtn" onclick="connectDevice()">
+                        Подключить
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -602,13 +633,13 @@
 
             switch (status) {
                 case 'connected':
-                    statusElement.innerHTML = '<i class="fas fa-wifi"></i> Подключено';
+                    statusElement.innerHTML = '<i class="fas fa-wifi"></i>';
                     break;
                 case 'disconnected':
-                    statusElement.innerHTML = '<i class="fas fa-wifi-slash"></i> Отключено';
+                    statusElement.innerHTML = '<i class="fas fa-wifi-slash"></i>';
                     break;
                 case 'connecting':
-                    statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Подключение...';
+                    statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                     break;
             }
         }
@@ -812,13 +843,13 @@
 
             switch (deviceType) {
                 case 'climate': {
-                    const temp = data.temperature ? Number(data.temperature).toFixed(1) : '..';
-                    const hum = data.humidity ? Number(data.humidity).toFixed(1) : '..';
-                    const threshold = data.threshold ? Number(data.threshold).toFixed(0) : '..';
-                    return `TEMP: ${temp} °C, HUM: ${hum} %, LIM: ${threshold} °C`;
+                    const temp = data.temperature ? Number(data.temperature).toFixed(1) : '--';
+                    const hum = data.humidity ? Number(data.humidity).toFixed(1) : '--';
+                    const threshold = data.threshold ? Number(data.threshold).toFixed(0) : '--';
+                    return `TEMP: ${temp} °C, HUM: ${hum} %, MAX: ${threshold} °C`;
                 }
                 case 'smartdim': {
-                    const brightness = data.brightness ? Number(data.brightness).toFixed(0) : '..';
+                    const brightness = data.brightness ? Number(data.brightness).toFixed(0) : '--';
                     const mode = data.mode || '--';
                     return `Яркость: ${brightness}%, Режим: ${mode}`;
                 }
@@ -893,7 +924,7 @@
                         <div class="device-info">
                             <div class="device-details">
                                 <div class="device-name">${device.custom_name || device.device_id}</div>
-                                <div class="device-id">device_id: ${device.device_id}</div>
+                                <div class="device-id">ID: ${device.device_id}</div>
                                 <div class="device-data-wrapper">
                                     <div class="device-data">${formatDeviceData(deviceType, data, status === 'online')}</div>
                                     <div class="status-indicator ${status}"></div>
