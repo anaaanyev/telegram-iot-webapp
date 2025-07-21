@@ -11,6 +11,8 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             margin: 0;
             padding: 0;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #333);
         }
 
         .container {
@@ -27,14 +29,14 @@
             font-size: 1.2rem;
             font-weight: bold;
             margin: 1rem 0 0.5rem 0;
-            color: #333;
+            color: var(--tg-theme-text-color, #333);
         }
 
         .section-group {
             font-size: 1rem;
             font-weight: bold;
             margin: 1rem 0 0.5rem 0;
-            color: #333;
+            color: var(--tg-theme-text-color, #333);
         }
 
         .device-grid {
@@ -45,7 +47,7 @@
         }
 
         .device-card {
-            background: #ffffff;
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
             border: 1px solid #a29bfe;
             border-radius: 9px;
             padding: 1rem;
@@ -55,7 +57,7 @@
         }
 
         .device-card:hover {
-            background: #ffffff;
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
             transform: translateY(-2px);
         }
 
@@ -93,13 +95,13 @@
         }
 
         .device-name {
-            color: #333;
+            color: var(--tg-theme-text-color, #333);
             font-weight: bold;
         }
 
         .device-id {
             font-size: 0.9rem;
-            color: #666;
+            color: var(--tg-theme-hint-color, #666);
             margin-bottom: 0.5rem;
         }
 
@@ -214,12 +216,12 @@
         }
 
         .header h1 {
-            color: #333;
+            color: var(--tg-theme-text-color, #333);
             margin-bottom: 0.5rem;
         }
 
         .header p {
-            color: #333;
+            color: var(--tg-theme-text-color, #333);
             margin: 0;
         }
 
@@ -327,14 +329,14 @@
         }
 
         .gradient-container {
-            background: linear-gradient(90deg, #8c52ff 0%, #ffffff 100%);
+            background: linear-gradient(90deg, #8c52ff 0%, var(--tg-theme-bg-color, #ffffff) 100%);
             padding: 0.1rem 1rem;
             margin-bottom: 1rem;
-            color: #333;
+            color: var(--tg-theme-text-color, #333);
         }
 
         .gradient-container .section-title {
-            color: #333;
+            color: var(--tg-theme-text-color, #333);
         }
 
         /* Убираем стиль карточки в gradient-container */
