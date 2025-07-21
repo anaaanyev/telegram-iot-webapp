@@ -127,7 +127,6 @@
         .device-data {
             font-size: 0.8rem;
             color: #777;
-            margin-top: 0.5rem;
         }
 
         .card {
@@ -803,9 +802,9 @@
             if (!data || !isOnline) {
                 switch (deviceType) {
                     case 'climate':
-                        return 'TEMP: ..°C, HUM: ..%, LIM: ..°C';
+                        return 'TEMP: -- °C, HUM: -- %, MAX: -- °C';
                     case 'smartdim':
-                        return 'Яркость: ..%, Режим: --';
+                        return 'Яркость: -- %, Режим: --';
                     default:
                         return '';
                 }
@@ -816,7 +815,7 @@
                     const temp = data.temperature ? Number(data.temperature).toFixed(1) : '..';
                     const hum = data.humidity ? Number(data.humidity).toFixed(1) : '..';
                     const threshold = data.threshold ? Number(data.threshold).toFixed(0) : '..';
-                    return `TEMP: ${temp}°C, HUM: ${hum}%, LIM: ${threshold}°C`;
+                    return `TEMP: ${temp} °C, HUM: ${hum} %, LIM: ${threshold} °C`;
                 }
                 case 'smartdim': {
                     const brightness = data.brightness ? Number(data.brightness).toFixed(0) : '..';
@@ -894,7 +893,7 @@
                         <div class="device-info">
                             <div class="device-details">
                                 <div class="device-name">${device.custom_name || device.device_id}</div>
-                                <div class="device-id">ID: ${device.device_id}</div>
+                                <div class="device-id">device_id: ${device.device_id}</div>
                                 <div class="device-data-wrapper">
                                     <div class="device-data">${formatDeviceData(deviceType, data, status === 'online')}</div>
                                     <div class="status-indicator ${status}"></div>
