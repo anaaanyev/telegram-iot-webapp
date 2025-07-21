@@ -84,6 +84,18 @@
             margin-bottom: 0px;
         }
 
+        .buttons-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .buttons-row .btn-danger,
+        .buttons-row .btn-secondary {
+            margin-bottom: 0;
+            flex: 1;
+        }
+
         .slider-container {
             margin: 24px 0;
         }
@@ -302,15 +314,12 @@
                 </button>
             </div>
 
-            <div class="section">
-                <button class="btn-danger" id="unregisterBtn">
-                    <i class="fas fa-unlink"></i> Отвязать устройство
-                </button>
-            </div>
-
-            <div class="section">
+            <div class="buttons-row">
                 <button class="btn-secondary" id="backBtn">
-                    <i class="fas fa-arrow-left"></i> Вернуться на главный экран
+                    <i class="fas fa-arrow-left"></i> Назад
+                </button>
+                <button class="btn-danger" id="unregisterBtn">
+                    <i class="fas fa-unlink"></i> Отвязать
                 </button>
             </div>
         </div>
@@ -490,7 +499,7 @@
                             // SVP (Saturated Vapor Pressure)
                             const svp = 0.61078 * Math.exp((17.27 * t) / (t + 237.3));
                             // VPD = SVP * (1 - RH/100)
-                            const vpd = svp * (1 - h/100);
+                            const vpd = svp * (1 - h / 100);
                             document.getElementById('vpd').textContent = vpd.toFixed(2);
                         } else {
                             document.getElementById('vpd').textContent = "--";
@@ -641,7 +650,7 @@
             deviceNameInput.value = deviceNameValue;
 
             // Обработчики для скрытия клавиатуры
-            deviceNameInput.addEventListener('blur', function() {
+            deviceNameInput.addEventListener('blur', function () {
                 // Специальный хак для iOS
                 if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
                     deviceNameInput.style.transform = 'translateY(0px)';
@@ -653,7 +662,7 @@
             });
 
             // Добавляем обработчик на весь документ для iOS
-            document.addEventListener('touchend', function(e) {
+            document.addEventListener('touchend', function (e) {
                 if (e.target !== deviceNameInput) {
                     deviceNameInput.blur();
                     if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
@@ -662,7 +671,7 @@
                 }
             });
 
-            deviceNameInput.addEventListener('keyup', function(event) {
+            deviceNameInput.addEventListener('keyup', function (event) {
                 if (event.key === 'Enter' || event.keyCode === 13) {
                     this.blur();
                     if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
