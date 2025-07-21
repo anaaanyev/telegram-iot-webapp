@@ -394,7 +394,7 @@
             <div class="section-title">
                 📱 Мои устройства
             </div>
-            <div id="devicesContainer" class="section-group"></div>
+            <div id="devicesContainer"></div>
         </div>
 
         <!-- Состояние "нет устройств" -->
@@ -897,7 +897,7 @@
 
                 // Создаем заголовок группы
                 const groupTitle = document.createElement('div');
-                groupTitle.className = 'section-title';
+                groupTitle.className = 'section-group';
                 groupTitle.innerHTML = `${typeInfo.icon} ${typeInfo.name}`;
                 devicesContainer.appendChild(groupTitle);
 
