@@ -640,6 +640,19 @@
             const deviceNameInput = document.getElementById('deviceNameInput');
             deviceNameInput.value = deviceNameValue;
 
+            // Добавляем обработчик для скрытия клавиатуры
+            deviceNameInput.addEventListener('blur', function() {
+                // Этот трюк заставляет клавиатуру скрыться
+                document.activeElement.blur();
+            });
+
+            // Добавляем обработчик на enter для скрытия клавиатуры
+            deviceNameInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    deviceNameInput.blur();
+                }
+            });
+
             // Получаем telegram_id пользователя
             const telegramUser = tg.initDataUnsafe?.user;
             if (!telegramUser) {
