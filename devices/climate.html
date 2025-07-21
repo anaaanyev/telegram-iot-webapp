@@ -67,14 +67,8 @@
             overflow: hidden;
         }
 
-        .stat-label {
-            font-size: 14px;
-            color: var(--tg-theme-hint-color);
-            margin-bottom: 8px;
-        }
-
         .stat-value {
-            font-size: 24px;
+            font-size: 1rem;
             font-weight: 600;
         }
 
@@ -254,7 +248,7 @@
 
 <body>
     <div id="notificationContainer" class="notification-container"></div>
-    
+
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-thermometer-half"></i> Климат-контроль</h1>
@@ -267,15 +261,12 @@
         <div class="card">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Температура</div>
                     <div class="stat-value"><span id="temp">--</span>°C</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Влажность</div>
                     <div class="stat-value"><span id="hum">--</span>%</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Текущий порог</div>
                     <div class="stat-value"><span id="threshold">--</span>°C</div>
                 </div>
             </div>
@@ -342,13 +333,13 @@
         function showMessage(text, type = 'success') {
             const container = document.getElementById('notificationContainer');
             const notification = document.createElement('div');
-            
+
             notification.className = `notification ${type}`;
             notification.innerHTML = `
                 <span>${text}</span>
                 <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
             `;
-            
+
             container.appendChild(notification);
 
             // Remove notification after delay
@@ -467,7 +458,7 @@
                                 var(--tg-theme-button-color) ${value}%, 
                                 var(--tg-theme-hint-color) ${value}%, 
                                 var(--tg-theme-hint-color) 100%)`;
-                                
+
                             isFirstLoad = false;
                         }
                     } else {
@@ -597,13 +588,13 @@
                 deviceStatuses: [[deviceId, isDeviceOnline ? 'online' : 'offline']],
                 lastUpdate: new Date().getTime()
             };
-            
+
             try {
                 sessionStorage.setItem('iotHubState', JSON.stringify(stateToSave));
             } catch (error) {
                 console.error('Ошибка сохранения состояния:', error);
             }
-            
+
             window.location.href = '../index.html';
         }
 
