@@ -141,6 +141,7 @@
             color: #666;
         }
 
+        /* Удаляем старые стили сообщений */
         .error-message,
         .success-message {
             padding: 1rem;
@@ -294,10 +295,6 @@
             <p>Управление умными устройствами</p>
         </div>
 
-        <!-- Сообщения об ошибках и успехе -->
-        <div id="errorMessage" class="error-message"></div>
-        <div id="successMessage" class="success-message"></div>
-
         <!-- Форма подключения устройства -->
         <div class="card" id="connectDeviceCard">
             <div class="section-title">
@@ -345,8 +342,6 @@
         const deviceIdInput = document.getElementById('deviceIdInput');
         const connectBtn = document.getElementById('connectBtn');
         const devicesContainer = document.getElementById('devicesContainer');
-        const errorMessage = document.getElementById('errorMessage');
-        const successMessage = document.getElementById('successMessage');
         const connectionStatus = document.getElementById('connectionStatus');
 
         // Переменные состояния
