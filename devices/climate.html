@@ -234,10 +234,11 @@
 
         .device-name-container {
             margin: 10px 0;
+            padding: 0 20px;
         }
 
         .device-name-input {
-            width: 100%;
+            width: calc(100% - 16px);
             padding: 8px;
             border: 1px solid var(--tg-theme-hint-color);
             border-radius: 8px;
@@ -246,6 +247,7 @@
             font-size: 16px;
             margin-bottom: 8px;
             text-align: center;
+            box-sizing: border-box;
         }
     </style>
 </head>
