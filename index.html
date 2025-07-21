@@ -47,13 +47,20 @@
         }
 
         .device-card {
-            background: var(--tg-theme-secondary-bg-color, #ffffff);
             border: 1px solid #a29bfe;
             border-radius: 9px;
             padding: 1rem;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
             position: relative;
+        }
+
+        .light-theme .device-card {
+            background: #ffffff;
+        }
+
+        .dark-theme .device-card {
+            background: #28283c;
         }
 
         .device-card:hover {
