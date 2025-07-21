@@ -108,8 +108,21 @@
 
         .device-id {
             font-size: 0.9rem;
-            color: var(--tg-theme-hint-color, #666);
             margin-bottom: 0.5rem;
+        }
+
+        .light-theme .device-id,
+        .light-theme .device-data {
+            color: #777;
+        }
+
+        .dark-theme .device-id,
+        .dark-theme .device-data {
+            color: #b0b0b0;
+        }
+
+        .device-data {
+            font-size: 0.8rem;
         }
 
         .devices-list {
@@ -142,11 +155,6 @@
         .device-status.connecting {
             background: #cce5ff;
             color: #0066cc;
-        }
-
-        .device-data {
-            font-size: 0.8rem;
-            color: #777;
         }
 
         .card {
