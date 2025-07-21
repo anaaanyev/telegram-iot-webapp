@@ -50,7 +50,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 12px;
             margin-bottom: 24px;
             width: 100%;
@@ -62,9 +62,17 @@
             border-radius: 12px;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            /* Добавляем перенос слов */
             word-wrap: break-word;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-icon {
+            font-size: 1.2rem;
+            color: var(--tg-theme-button-color);
         }
 
         .stat-value {
@@ -73,7 +81,7 @@
         }
 
         .section {
-            margin-bottom: 20px;
+            margin-bottom: 0px;
         }
 
         .slider-container {
@@ -261,12 +269,19 @@
         <div class="card">
             <div class="stats-grid">
                 <div class="stat-card">
+                    <i class="fas fa-thermometer-half stat-icon"></i>
                     <div class="stat-value"><span id="temp">--</span>°C</div>
                 </div>
                 <div class="stat-card">
+                    <i class="fas fa-tint stat-icon"></i>
                     <div class="stat-value"><span id="hum">--</span>%</div>
                 </div>
                 <div class="stat-card">
+                    <i class="fas fa-droplet stat-icon"></i>
+                    <div class="stat-value"><span id="vpd">--</span>kPa</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-bullseye stat-icon"></i>
                     <div class="stat-value"><span id="threshold">--</span>°C</div>
                 </div>
             </div>
@@ -464,6 +479,22 @@
                     } else {
                         console.log("❌ Порог не найден в данных");
                         threshold.textContent = "--";
+                    }
+
+                    // Добавляем расчет VPD
+                    if (data.temperature !== undefined && data.humidity !== undefined) {
+                        // Расчет VPD
+                        const t = parseFloat(data.temperature);
+                        const h = parseFloat(data.humidity);
+                        if (!isNaN(t) && !isNaN(h)) {
+                            // SVP (Saturated Vapor Pressure)
+                            const svp = 0.61078 * Math.exp((17.27 * t) / (t + 237.3));
+                            // VPD = SVP * (1 - RH/100)
+                            const vpd = svp * (1 - h/100);
+                            document.getElementById('vpd').textContent = vpd.toFixed(2);
+                        } else {
+                            document.getElementById('vpd').textContent = "--";
+                        }
                     }
 
                     // Убираем сообщения об ошибках после первой успешной загрузки
