@@ -878,7 +878,7 @@
                     case 'climate':
                         return 'TEMP: -- °C, HUM: -- %, MAX: -- °C';
                     case 'smartdim':
-                        return 'Яркость: -- %, Режим: --';
+                        return 'TEMP: -- °C, HUM: -- %, VPD: -- kPa';
                     default:
                         return '';
                 }
@@ -887,14 +887,15 @@
             switch (deviceType) {
                 case 'climate': {
                     const temp = data.temperature ? Number(data.temperature).toFixed(1) : '--';
-                    const hum = data.humidity ? Number(data.humidity).toFixed(1) : '--';
+                    const hum = data.humidity ? Number(data.humidity).toFixed(0) : '--';
                     const threshold = data.threshold ? Number(data.threshold).toFixed(0) : '--';
                     return `TEMP: ${temp} °C, HUM: ${hum} %, MAX: ${threshold} °C`;
                 }
                 case 'smartdim': {
-                    const brightness = data.brightness ? Number(data.brightness).toFixed(0) : '--';
-                    const mode = data.mode || '--';
-                    return `Яркость: ${brightness}%, Режим: ${mode}`;
+                    const temp = data.temperature ? Number(data.temperature).toFixed(1) : '--';
+                    const hum = data.humidity ? Number(data.humidity).toFixed(0) : '--';
+                    const vpd = data.vpd ? Number(data.vpd).toFixed(2) : '--';
+                    return `TEMP: ${temp} °C, HUM: ${hum} %, VPD: ${vpd} kPa`;
                 }
                 default:
                     return Object.entries(data)
