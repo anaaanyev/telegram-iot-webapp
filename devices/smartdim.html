@@ -14,23 +14,23 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--tg-theme-bg-color, #ffffff);
             min-height: 100vh;
-            color: #333;
-            padding: 16px;
+            color: var(--tg-theme-text-color, #000000);
+            /*padding: 16px;*/
         }
 
         .container {
-            max-width: 400px;
+            /*max-width: 400px;*/
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: var(--tg-theme-bg-color, #ffffff);
+            /*border-radius: 20px;*/
+            box-shadow: none;
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #8c52ff 0%, #6a3ef7 100%);
             padding: 24px 20px;
             text-align: center;
             color: white;
@@ -92,7 +92,7 @@
         .section-title {
             font-size: 16px;
             font-weight: 600;
-            color: #2d3748;
+            color: var(--tg-theme-text-color, #2d3748);
             margin-bottom: 16px;
             display: flex;
             align-items: center;
@@ -102,7 +102,7 @@
             content: '';
             width: 4px;
             height: 16px;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #8c52ff 0%, #6a3ef7 100%);
             border-radius: 2px;
             margin-right: 8px;
         }
@@ -115,23 +115,23 @@
         }
 
         .data-card {
-            background: #f7fafc;
+            background: var(--tg-theme-secondary-bg-color, #f7fafc);
             padding: 16px;
             border-radius: 12px;
             text-align: center;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--tg-theme-hint-color, #e2e8f0);
         }
 
         .data-value {
             font-size: 20px;
             font-weight: 700;
-            color: #2d3748;
+            color: var(--tg-theme-text-color, #2d3748);
             margin-bottom: 4px;
         }
 
         .data-label {
             font-size: 12px;
-            color: #718096;
+            color: var(--tg-theme-hint-color, #718096);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -144,41 +144,59 @@
             display: block;
             font-size: 14px;
             font-weight: 500;
-            color: #4a5568;
+            color: var(--tg-theme-text-color, #4a5568);
             margin-bottom: 6px;
         }
 
         .form-input {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--tg-theme-hint-color, #e2e8f0);
             border-radius: 8px;
             font-size: 14px;
             transition: all 0.2s;
-            background: white;
+            background: var(--tg-theme-bg-color, white);
+            color: var(--tg-theme-text-color, #2d3748);
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #4facfe;
-            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+            border-color: #8c52ff;
+            box-shadow: 0 0 0 3px rgba(140, 82, 255, 0.1);
         }
 
         .range-group {
             display: flex;
-            gap: 12px;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .range-header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 4px;
         }
 
         .range-input {
-            flex: 1;
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+            outline: none;
         }
 
         .range-value {
-            min-width: 40px;
-            text-align: center;
+            font-size: 14px;
             font-weight: 600;
-            color: #4facfe;
+            color: #8c52ff;
+            background: rgba(140, 82, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            min-width: 44px;
+            text-align: center;
         }
 
         .schedule-row {
@@ -209,7 +227,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #cbd5e0;
+            background-color: var(--tg-theme-hint-color, #cbd5e0);
             transition: .4s;
             border-radius: 24px;
         }
@@ -227,7 +245,7 @@
         }
 
         input:checked+.slider {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #8c52ff 0%, #6a3ef7 100%);
         }
 
         input:checked+.slider:before {
@@ -235,7 +253,7 @@
         }
 
         .sync-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #8c52ff 0%, #6a3ef7 100%);
             color: white;
             border: none;
             padding: 8px 16px;
@@ -285,23 +303,23 @@
         }
 
         .back-btn {
-            background: #f7fafc;
-            color: #4a5568;
-            border: 2px solid #e2e8f0;
+            background: var(--tg-theme-secondary-bg-color, #f7fafc);
+            color: var(--tg-theme-text-color, #4a5568);
+            border: 2px solid var(--tg-theme-hint-color, #e2e8f0);
         }
 
         .unbind-btn {
-            background: #fed7d7;
-            color: #c53030;
-            border: 2px solid #feb2b2;
+            background: var(--tg-theme-destructive-text-color, #fed7d7);
+            color: var(--tg-theme-destructive-text-color, #c53030);
+            border: 2px solid var(--tg-theme-destructive-text-color, #feb2b2);
         }
 
         .back-btn:hover {
-            background: #edf2f7;
+            background: var(--tg-theme-secondary-bg-color, #edf2f7);
         }
 
         .unbind-btn:hover {
-            background: #fbb6ce;
+            background: var(--tg-theme-destructive-text-color, #fbb6ce);
         }
 
         .time-sync {
@@ -312,7 +330,344 @@
 
         .current-time {
             font-weight: 600;
-            color: #2d3748;
+            color: var(--tg-theme-text-color, #2d3748);
+        }
+
+        /* Modern Range Input Styling */
+        .range-input {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right,
+                    #8c52ff 0%,
+                    #8c52ff var(--range-progress, 10%),
+                    var(--tg-theme-hint-color, #e2e8f0) var(--range-progress, 10%),
+                    var(--tg-theme-hint-color, #e2e8f0) 100%);
+            transition: all 0.2s ease;
+        }
+
+        .range-input::-webkit-slider-track {
+            background: transparent;
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        .range-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #8c52ff;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            border: 3px solid var(--tg-theme-bg-color, white);
+            box-shadow: 0 2px 8px rgba(140, 82, 255, 0.25);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .range-input::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(140, 82, 255, 0.4);
+        }
+
+        .range-input::-moz-range-track {
+            background: var(--tg-theme-hint-color, #e2e8f0);
+            height: 6px;
+            border-radius: 3px;
+            border: none;
+        }
+
+        .range-input::-moz-range-thumb {
+            background: #8c52ff;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            border: 3px solid var(--tg-theme-bg-color, white);
+            box-shadow: 0 2px 8px rgba(140, 82, 255, 0.25);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .range-input::-moz-range-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .range-input::-moz-range-progress {
+            background: #8c52ff;
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        .range-container {
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--tg-theme-hint-color, #718096);
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+
+        /* Modern Schedule Styling */
+        .schedule-container {
+            background: var(--tg-theme-secondary-bg-color, #f8fafc);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--tg-theme-hint-color, #e2e8f0);
+        }
+
+        .time-row {
+            display: grid;
+            grid-template-columns: 1fr 24px 1fr;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .time-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .time-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--tg-theme-hint-color, #718096);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .time-input {
+            padding: 8px 12px;
+            border: 1.5px solid var(--tg-theme-hint-color, #e2e8f0);
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            background: var(--tg-theme-bg-color, white);
+            color: var(--tg-theme-text-color, #2d3748);
+            transition: all 0.2s ease;
+        }
+
+        .time-input:focus {
+            outline: none;
+            border-color: #8c52ff;
+            box-shadow: 0 0 0 3px rgba(140, 82, 255, 0.1);
+        }
+
+        .time-separator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--tg-theme-hint-color, #9ca3af);
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        .current-time-display {
+            background: rgba(140, 82, 255, 0.1);
+            border: 1.5px solid rgba(140, 82, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: 600;
+            color: #8c52ff;
+            font-size: 14px;
+            width: 120px;
+            height: 44px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--tg-theme-hint-color, #f1f5f9);
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .setting-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--tg-theme-text-color, #374151);
+            flex: 1;
+        }
+
+        .setting-control {
+            flex-shrink: 0;
+            min-width: 120px;
+        }
+
+        .modern-select {
+            appearance: none;
+            background: var(--tg-theme-bg-color, white);
+            border: 1.5px solid var(--tg-theme-hint-color, #e2e8f0);
+            border-radius: 8px;
+            padding: 10px 32px 10px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--tg-theme-text-color, #374151);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 8px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            width: 120px;
+            height: 44px;
+            box-sizing: border-box;
+        }
+
+        .modern-select:focus {
+            outline: none;
+            border-color: #8c52ff;
+            box-shadow: 0 0 0 3px rgba(140, 82, 255, 0.1);
+        }
+
+        .sync-button {
+            background: linear-gradient(135deg, #8c52ff 0%, #6a3ef7 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 120px;
+            height: 44px;
+            box-sizing: border-box;
+        }
+
+        .sync-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(140, 82, 255, 0.3);
+        }
+
+        /* Modern Temperature Control */
+        .temp-control-container {
+            background: var(--tg-theme-secondary-bg-color, #f8fafc);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--tg-theme-hint-color, #e2e8f0);
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--tg-theme-hint-color, #f1f5f9);
+        }
+
+        .modern-toggle {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+
+        .modern-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--tg-theme-hint-color, #cbd5e0);
+            transition: .3s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input:checked+.toggle-slider {
+            background: linear-gradient(135deg, #8c52ff 0%, #6a3ef7 100%);
+        }
+
+        input:checked+.toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .temp-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .temp-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .temp-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--tg-theme-bg-color, white);
+            border: 1.5px solid var(--tg-theme-hint-color, #e2e8f0);
+            border-radius: 8px;
+            padding: 10px 12px;
+            transition: all 0.2s ease;
+        }
+
+        .temp-input:focus-within {
+            border-color: #8c52ff;
+            box-shadow: 0 0 0 3px rgba(140, 82, 255, 0.1);
+        }
+
+        .temp-number {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--tg-theme-text-color, #374151);
+            flex: 1;
+            text-align: center;
+        }
+
+        .temp-unit {
+            color: var(--tg-theme-hint-color, #9ca3af);
+            font-size: 14px;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -354,111 +709,123 @@
             <div class="section">
                 <div class="section-title">Параметры освещения</div>
                 <div class="form-group">
-                    <label class="form-label">Начальная яркость</label>
                     <div class="range-group">
-                        <input type="range" class="form-input range-input" min="0" max="100" value="10"
-                            id="minBrightness">
-                        <span class="range-value" id="minBrightnessValue">10%</span>
+                        <div class="range-header">
+                            <label class="form-label" style="margin-bottom: 0;">Начальная яркость</label>
+                            <span class="range-value" id="minBrightnessValue">10%</span>
+                        </div>
+                        <input type="range" class="range-input" min="0" max="100" value="10" id="minBrightness">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Максимальная яркость</label>
                     <div class="range-group">
-                        <input type="range" class="form-input range-input" min="0" max="100" value="80"
-                            id="maxBrightness">
-                        <span class="range-value" id="maxBrightnessValue">80%</span>
+                        <div class="range-header">
+                            <label class="form-label" style="margin-bottom: 0;">Максимальная яркость</label>
+                            <span class="range-value" id="maxBrightnessValue">80%</span>
+                        </div>
+                        <input type="range" class="range-input" min="0" max="100" value="80" id="maxBrightness">
                     </div>
                 </div>
             </div>
 
             <div class="section">
                 <div class="section-title">Расписание</div>
-                <div class="schedule-row">
-                    <label class="form-label" style="text-align: center;">Включение</label>
-                    <label class="form-label" style="text-align: center;">Выключение</label>
-                    <label class="form-label" style="text-align: center;">Время работы</label>
-                </div>
-                <div class="schedule-row">
-                    <input type="time" class="form-input" value="08:00" style="text-align: center;">
-                    <input type="time" class="form-input" value="20:00" style="text-align: center;">
-                    <div class="current-time" style="text-align: center;">12:35</div>
-                </div>
-                <div class="form-group">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Рассвет/закат:</label>
-                        <select class="form-input" style="flex: 1;">
-                            <option value="30">30 мин</option>
-                            <option value="45">45 мин</option>
-                            <option value="60" selected>60 мин</option>
-                            <option value="90">90 мин</option>
-                            <option value="120">120 мин</option>
-                        </select>
+                <div class="schedule-container">
+                    <div class="time-row">
+                        <div class="time-input-group">
+                            <div class="time-label">Включение</div>
+                            <input type="time" class="time-input" value="08:00">
+                        </div>
+                        <div class="time-separator">→</div>
+                        <div class="time-input-group">
+                            <div class="time-label">Выключение</div>
+                            <input type="time" class="time-input" value="20:00">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Часовой пояс:</label>
-                        <select class="form-input" style="flex: 1;">
-                            <option value="-12">UTC-12</option>
-                            <option value="-11">UTC-11</option>
-                            <option value="-10">UTC-10</option>
-                            <option value="-9">UTC-9</option>
-                            <option value="-8">UTC-8</option>
-                            <option value="-7">UTC-7</option>
-                            <option value="-6">UTC-6</option>
-                            <option value="-5">UTC-5</option>
-                            <option value="-4">UTC-4</option>
-                            <option value="-3">UTC-3</option>
-                            <option value="-2">UTC-2</option>
-                            <option value="-1">UTC-1</option>
-                            <option value="0">UTC+0</option>
-                            <option value="1">UTC+1</option>
-                            <option value="2">UTC+2</option>
-                            <option value="3" selected>UTC+3</option>
-                            <option value="4">UTC+4</option>
-                            <option value="5">UTC+5</option>
-                            <option value="6">UTC+6</option>
-                            <option value="7">UTC+7</option>
-                            <option value="8">UTC+8</option>
-                            <option value="9">UTC+9</option>
-                            <option value="10">UTC+10</option>
-                            <option value="11">UTC+11</option>
-                            <option value="12">UTC+12</option>
-                        </select>
+
+                    <div class="setting-row">
+                        <div class="setting-label">Рассвет/закат:</div>
+                        <div class="setting-control">
+                            <select class="modern-select">
+                                <option value="30">30 мин</option>
+                                <option value="45">45 мин</option>
+                                <option value="60" selected>60 мин</option>
+                                <option value="90">90 мин</option>
+                                <option value="120">120 мин</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Обновить время:</label>
-                        <button class="sync-btn" onclick="syncTime()" style="flex: 1;">Sync</button>
+
+                    <div class="setting-row">
+                        <div class="setting-label">Часовой пояс:</div>
+                        <div class="setting-control">
+                            <select class="modern-select">
+                                <option value="-12">UTC-12</option>
+                                <option value="-11">UTC-11</option>
+                                <option value="-10">UTC-10</option>
+                                <option value="-9">UTC-9</option>
+                                <option value="-8">UTC-8</option>
+                                <option value="-7">UTC-7</option>
+                                <option value="-6">UTC-6</option>
+                                <option value="-5">UTC-5</option>
+                                <option value="-4">UTC-4</option>
+                                <option value="-3">UTC-3</option>
+                                <option value="-2">UTC-2</option>
+                                <option value="-1">UTC-1</option>
+                                <option value="0">UTC+0</option>
+                                <option value="1">UTC+1</option>
+                                <option value="2">UTC+2</option>
+                                <option value="3" selected>UTC+3</option>
+                                <option value="4">UTC+4</option>
+                                <option value="5">UTC+5</option>
+                                <option value="6">UTC+6</option>
+                                <option value="7">UTC+7</option>
+                                <option value="8">UTC+8</option>
+                                <option value="9">UTC+9</option>
+                                <option value="10">UTC+10</option>
+                                <option value="11">UTC+11</option>
+                                <option value="12">UTC+12</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-label">Текущее время:</div>
+                        <div class="current-time-display">12:35</div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-label">Синхронизация:</div>
+                        <button class="sync-button" onclick="syncTime()">Sync</button>
                     </div>
                 </div>
             </div>
 
             <div class="section">
                 <div class="section-title">Контроль температуры</div>
-                <div class="form-group">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Контроль
-                            температуры:</label>
-                        <label class="toggle-switch">
+                <div class="temp-control-container">
+                    <div class="toggle-row">
+                        <div class="setting-label">Контроль температуры:</div>
+                        <label class="modern-toggle">
                             <input type="checkbox" checked>
-                            <span class="slider"></span>
+                            <span class="toggle-slider"></span>
                         </label>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Минимальная:</label>
-                        <input type="number" class="form-input" value="27" min="0" max="50" style="flex: 1;">
-                        <span style="color: #718096; font-size: 14px;">°C</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Максимальная:</label>
-                        <input type="number" class="form-input" value="28" min="0" max="50" style="flex: 1;">
-                        <span style="color: #718096; font-size: 14px;">°C</span>
+                    <div class="temp-inputs">
+                        <div class="temp-input-group">
+                            <div class="setting-label">Минимальная:</div>
+                            <div class="temp-input">
+                                <input type="number" class="temp-number" value="27" min="0" max="50">
+                                <span class="temp-unit">°C</span>
+                            </div>
+                        </div>
+                        <div class="temp-input-group">
+                            <div class="setting-label">Максимальная:</div>
+                            <div class="temp-input">
+                                <input type="number" class="temp-number" value="28" min="0" max="50">
+                                <span class="temp-unit">°C</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -473,13 +840,27 @@
     </div>
 
     <script>
+        // Функция для обновления прогресса ползунка
+        function updateRangeProgress(input) {
+            const value = ((input.value - input.min) / (input.max - input.min)) * 100;
+            input.style.setProperty('--range-progress', value + '%');
+        }
+
         // Обновление значений слайдеров
         document.getElementById('minBrightness').addEventListener('input', function () {
             document.getElementById('minBrightnessValue').textContent = this.value + '%';
+            updateRangeProgress(this);
         });
 
         document.getElementById('maxBrightness').addEventListener('input', function () {
             document.getElementById('maxBrightnessValue').textContent = this.value + '%';
+            updateRangeProgress(this);
+        });
+
+        // Инициализация прогресса ползунков при загрузке
+        document.addEventListener('DOMContentLoaded', function () {
+            updateRangeProgress(document.getElementById('minBrightness'));
+            updateRangeProgress(document.getElementById('maxBrightness'));
         });
 
         // Функции для кнопок
@@ -532,7 +913,7 @@
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            document.querySelector('.current-time').textContent = timeString;
+            document.querySelector('.current-time-display').textContent = timeString;
         }
 
         setInterval(updateTime, 1000);
