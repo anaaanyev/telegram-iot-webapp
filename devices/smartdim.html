@@ -53,6 +53,33 @@
             margin-bottom: 8px;
         }
 
+        .device-name-input {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 auto 12px auto;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 8px 16px;
+            color: white;
+            text-align: center;
+            width: 100%;
+            max-width: 240px;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .device-name-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .device-name-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+
         .group-name {
             font-size: 14px;
             opacity: 0.9;
@@ -67,6 +94,7 @@
             border-radius: 20px;
             font-size: 12px;
             font-weight: 500;
+            margin-top: 0;
         }
 
         .status-dot {
@@ -745,7 +773,7 @@
     <div class="container">
         <div class="header">
             <div class="group-name">💡Управление освещением</div>
-            <div class="device-name">Smart Dimmer #1</div>
+            <input type="text" id="deviceNameInput" class="device-name-input" placeholder="Название устройства" value="Smart Dimmer #1">
             <div class="status">
                 <div class="status-dot"></div>
                 Онлайн
