@@ -401,8 +401,8 @@
             background: linear-gradient(to right,
                     #8c52ff 0%,
                     #8c52ff var(--range-progress, 10%),
-                    var(--tg-theme-hint-color, #e2e8f0) var(--range-progress, 10%),
-                    var(--tg-theme-hint-color, #e2e8f0) 100%);
+                    #e2e8f0 var(--range-progress, 10%),
+                    #e2e8f0 100%);
             transition: all 0.2s ease;
         }
 
@@ -512,6 +512,7 @@
             background: var(--tg-theme-bg-color);
             color: var(--tg-theme-text-color);
             transition: all 0.2s ease;
+            height: 44px;
         }
 
         .time-input:focus {
@@ -551,7 +552,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 12px 0;
-            border-bottom: 1px solid var(--tg-theme-hint-color, #f1f5f9);
+            border-bottom: 1px solid #f1f5f9;
         }
 
         .setting-row:last-child {
@@ -634,7 +635,7 @@
             justify-content: space-between;
             padding: 12px 0;
             margin-bottom: 16px;
-            border-bottom: 1px solid var(--tg-theme-hint-color, #f1f5f9);
+            border-bottom: 1px solid #f1f5f9;
         }
 
         .modern-toggle {
