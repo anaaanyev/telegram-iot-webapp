@@ -930,6 +930,21 @@
         document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.buttonTextColor);
         document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.secondaryBgColor);
 
+        // Определяем темную тему и применяем специальный фон для контейнеров
+        const isDarkTheme = tg.colorScheme === 'dark';
+        if (isDarkTheme) {
+            const darkContainerStyle = document.createElement('style');
+            darkContainerStyle.textContent = `
+                .data-card,
+                .lighting-control-container,
+                .schedule-container,
+                .temp-control-container {
+                    background: #28283c !important;
+                }
+            `;
+            document.head.appendChild(darkContainerStyle);
+        }
+
         // Функция для обновления прогресса ползунка
         function updateRangeProgress(input) {
             const value = ((input.value - input.min) / (input.max - input.min)) * 100;
