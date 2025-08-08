@@ -1,1 +1,554 @@
-// для smartdim
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Device Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 24px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .device-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .group-name {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .content {
+            padding: 24px 20px;
+        }
+
+        .section {
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 2px;
+            margin-right: 8px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .data-card {
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .data-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .data-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .range-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .range-input {
+            flex: 1;
+        }
+
+        .range-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+            color: #4facfe;
+        }
+
+        .schedule-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e0;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        .sync-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .sync-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .save-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: transform 0.2s;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .bottom-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .back-btn,
+        .unbind-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-btn {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .unbind-btn {
+            background: #fed7d7;
+            color: #c53030;
+            border: 2px solid #feb2b2;
+        }
+
+        .back-btn:hover {
+            background: #edf2f7;
+        }
+
+        .unbind-btn:hover {
+            background: #fbb6ce;
+        }
+
+        .time-sync {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .current-time {
+            font-weight: 600;
+            color: #2d3748;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="group-name">Группа: Теплица №1</div>
+            <div class="device-name">LED Контроллер Pro</div>
+            <div class="status">
+                <div class="status-dot"></div>
+                Онлайн
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <div class="section-title">Текущие данные</div>
+                <div class="data-grid">
+                    <div class="data-card">
+                        <div class="data-value">24.5°C</div>
+                        <div class="data-label">Температура</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">65%</div>
+                        <div class="data-label">Влажность</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">1.2 kPa</div>
+                        <div class="data-label">VPD</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">45%</div>
+                        <div class="data-label">LED яркость</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Параметры освещения</div>
+                <div class="form-group">
+                    <label class="form-label">Начальная яркость</label>
+                    <div class="range-group">
+                        <input type="range" class="form-input range-input" min="0" max="100" value="10"
+                            id="minBrightness">
+                        <span class="range-value" id="minBrightnessValue">10%</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Максимальная яркость</label>
+                    <div class="range-group">
+                        <input type="range" class="form-input range-input" min="0" max="100" value="80"
+                            id="maxBrightness">
+                        <span class="range-value" id="maxBrightnessValue">80%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Расписание</div>
+                <div class="schedule-row">
+                    <label class="form-label" style="text-align: center;">Включение</label>
+                    <label class="form-label" style="text-align: center;">Выключение</label>
+                    <label class="form-label" style="text-align: center;">Время работы</label>
+                </div>
+                <div class="schedule-row">
+                    <input type="time" class="form-input" value="08:00" style="text-align: center;">
+                    <input type="time" class="form-input" value="20:00" style="text-align: center;">
+                    <div class="current-time" style="text-align: center;">12:35</div>
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Рассвет/закат:</label>
+                        <select class="form-input" style="flex: 1;">
+                            <option value="30">30 мин</option>
+                            <option value="45">45 мин</option>
+                            <option value="60" selected>60 мин</option>
+                            <option value="90">90 мин</option>
+                            <option value="120">120 мин</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Часовой пояс:</label>
+                        <select class="form-input" style="flex: 1;">
+                            <option value="-12">UTC-12</option>
+                            <option value="-11">UTC-11</option>
+                            <option value="-10">UTC-10</option>
+                            <option value="-9">UTC-9</option>
+                            <option value="-8">UTC-8</option>
+                            <option value="-7">UTC-7</option>
+                            <option value="-6">UTC-6</option>
+                            <option value="-5">UTC-5</option>
+                            <option value="-4">UTC-4</option>
+                            <option value="-3">UTC-3</option>
+                            <option value="-2">UTC-2</option>
+                            <option value="-1">UTC-1</option>
+                            <option value="0">UTC+0</option>
+                            <option value="1">UTC+1</option>
+                            <option value="2">UTC+2</option>
+                            <option value="3" selected>UTC+3</option>
+                            <option value="4">UTC+4</option>
+                            <option value="5">UTC+5</option>
+                            <option value="6">UTC+6</option>
+                            <option value="7">UTC+7</option>
+                            <option value="8">UTC+8</option>
+                            <option value="9">UTC+9</option>
+                            <option value="10">UTC+10</option>
+                            <option value="11">UTC+11</option>
+                            <option value="12">UTC+12</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Обновить время:</label>
+                        <button class="sync-btn" onclick="syncTime()" style="flex: 1;">Sync</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Контроль температуры</div>
+                <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Контроль
+                            температуры:</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Минимальная:</label>
+                        <input type="number" class="form-input" value="27" min="0" max="50" style="flex: 1;">
+                        <span style="color: #718096; font-size: 14px;">°C</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <label class="form-label" style="margin-bottom: 0; min-width: 120px;">Максимальная:</label>
+                        <input type="number" class="form-input" value="28" min="0" max="50" style="flex: 1;">
+                        <span style="color: #718096; font-size: 14px;">°C</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="save-btn" onclick="saveSettings()">Сохранить настройки</button>
+
+            <div class="bottom-actions">
+                <button class="back-btn" onclick="goBack()">← Назад</button>
+                <button class="unbind-btn" onclick="unbindDevice()">Отвязать</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Обновление значений слайдеров
+        document.getElementById('minBrightness').addEventListener('input', function () {
+            document.getElementById('minBrightnessValue').textContent = this.value + '%';
+        });
+
+        document.getElementById('maxBrightness').addEventListener('input', function () {
+            document.getElementById('maxBrightnessValue').textContent = this.value + '%';
+        });
+
+        // Функции для кнопок
+        function saveSettings() {
+            // Анимация сохранения
+            const btn = document.querySelector('.save-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Сохранено ✓';
+            btn.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+            }, 2000);
+        }
+
+        function syncTime() {
+            const btn = document.querySelector('.sync-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '⟳';
+            btn.style.animation = 'spin 1s linear infinite';
+
+            setTimeout(() => {
+                btn.textContent = '✓';
+                btn.style.animation = 'none';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 1000);
+            }, 1500);
+        }
+
+        function goBack() {
+            // Анимация возврата
+            document.querySelector('.container').style.transform = 'translateX(-100%)';
+            document.querySelector('.container').style.transition = 'transform 0.3s ease';
+        }
+
+        function unbindDevice() {
+            if (confirm('Вы уверены, что хотите отвязать устройство?')) {
+                const btn = document.querySelector('.unbind-btn');
+                btn.textContent = 'Отвязано';
+                btn.style.background = '#fed7d7';
+            }
+        }
+
+        // Обновление времени каждую секунду
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.querySelector('.current-time').textContent = timeString;
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // CSS анимация для кнопки синхронизации
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'96aec80a71762406',t:'MTc1NDQ4NTkwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
+</body>
+
+</html>
