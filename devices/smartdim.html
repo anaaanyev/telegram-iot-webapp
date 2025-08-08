@@ -684,8 +684,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="group-name">Группа: Теплица №1</div>
-            <div class="device-name">LED Контроллер Pro</div>
+            <div class="group-name">💡Управление освещением</div>
+            <div class="device-name">Smart Dimmer #1</div>
             <div class="status">
                 <div class="status-dot"></div>
                 Онлайн
@@ -822,49 +822,22 @@
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
-                    <div class="temp-inputs">
-                        <div class="temp-input-group">
-                            <div class="setting-label">Минимальная:</div>
-                            <div class="temp-input">
-                                <input type="number" class="temp-number" value="27" min="0" max="50">
-                                <span class="temp-unit">°C</span>
+                    <div class="form-group">
+                        <div class="range-group">
+                            <div class="range-header">
+                                <label class="form-label" style="margin-bottom: 0;">Минимальная температура</label>
+                                <span class="range-value" id="minTempValue">27°C</span>
                             </div>
-                        </div>
-                        <div class="temp-input-group">
-                            <div class="setting-label">Максимальная:</div>
-                            <div class="temp-input">
-                                <input type="number" class="temp-number" value="28" min="0" max="50">
-                                <span class="temp-unit">°C</span>
-                            </div>
+                            <input type="range" class="range-input" min="15" max="40" value="27" id="minTemp">
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Контроль освещения</div>
-                <div class="lighting-control-container">
-                    <div class="toggle-row">
-                        <div class="setting-label">Режим контроля:</div>
-                        <label class="modern-toggle">
-                            <input type="checkbox" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="temp-inputs">
-                        <div class="temp-input-group">
-                            <div class="setting-label">Минимальная:</div>
-                            <div class="temp-input">
-                                <input type="number" class="temp-number" value="10" min="0" max="100">
-                                <span class="temp-unit">%</span>
+                    <div class="form-group">
+                        <div class="range-group">
+                            <div class="range-header">
+                                <label class="form-label" style="margin-bottom: 0;">Максимальная температура</label>
+                                <span class="range-value" id="maxTempValue">28°C</span>
                             </div>
-                        </div>
-                        <div class="temp-input-group">
-                            <div class="setting-label">Максимальная:</div>
-                            <div class="temp-input">
-                                <input type="number" class="temp-number" value="80" min="0" max="100">
-                                <span class="temp-unit">%</span>
-                            </div>
+                            <input type="range" class="range-input" min="15" max="40" value="28" id="maxTemp">
                         </div>
                     </div>
                 </div>
@@ -897,10 +870,45 @@
             updateRangeProgress(this);
         });
 
+        // Обновление значений температурных слайдеров с валидацией
+        document.getElementById('minTemp').addEventListener('input', function () {
+            const maxTemp = document.getElementById('maxTemp');
+            const minValue = parseInt(this.value);
+            const maxValue = parseInt(maxTemp.value);
+            
+            // Если минимальная больше максимальной, устанавливаем максимальную на 1 градус выше
+            if (minValue >= maxValue) {
+                maxTemp.value = minValue + 1;
+                document.getElementById('maxTempValue').textContent = maxTemp.value + '°C';
+                updateRangeProgress(maxTemp);
+            }
+            
+            document.getElementById('minTempValue').textContent = this.value + '°C';
+            updateRangeProgress(this);
+        });
+
+        document.getElementById('maxTemp').addEventListener('input', function () {
+            const minTemp = document.getElementById('minTemp');
+            const minValue = parseInt(minTemp.value);
+            const maxValue = parseInt(this.value);
+            
+            // Если максимальная меньше минимальной, устанавливаем минимальную на 1 градус ниже
+            if (maxValue <= minValue) {
+                minTemp.value = maxValue - 1;
+                document.getElementById('minTempValue').textContent = minTemp.value + '°C';
+                updateRangeProgress(minTemp);
+            }
+            
+            document.getElementById('maxTempValue').textContent = this.value + '°C';
+            updateRangeProgress(this);
+        });
+
         // Инициализация прогресса ползунков при загрузке
         document.addEventListener('DOMContentLoaded', function () {
             updateRangeProgress(document.getElementById('minBrightness'));
             updateRangeProgress(document.getElementById('maxBrightness'));
+            updateRangeProgress(document.getElementById('minTemp'));
+            updateRangeProgress(document.getElementById('maxTemp'));
         });
 
         // Функции для кнопок
