@@ -519,7 +519,7 @@
             background: var(--tg-theme-bg-color, white);
             border: 1.5px solid var(--tg-theme-hint-color, #e2e8f0);
             border-radius: 8px;
-            padding: 10px 32px 10px 12px;
+            padding: 10px 12px;
             font-size: 14px;
             font-weight: 500;
             color: var(--tg-theme-text-color, #374151);
@@ -670,6 +670,14 @@
             font-size: 14px;
             font-weight: 500;
         }
+
+        /* Modern Lighting Control */
+        .lighting-control-container {
+            background: var(--tg-theme-secondary-bg-color, #f8fafc);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--tg-theme-hint-color, #e2e8f0);
+        }
     </style>
 </head>
 
@@ -709,22 +717,24 @@
 
             <div class="section">
                 <div class="section-title">Параметры освещения</div>
-                <div class="form-group">
-                    <div class="range-group">
-                        <div class="range-header">
-                            <label class="form-label" style="margin-bottom: 0;">Начальная яркость</label>
-                            <span class="range-value" id="minBrightnessValue">10%</span>
+                <div class="lighting-control-container">
+                    <div class="form-group">
+                        <div class="range-group">
+                            <div class="range-header">
+                                <label class="form-label" style="margin-bottom: 0;">Начальная яркость</label>
+                                <span class="range-value" id="minBrightnessValue">10%</span>
+                            </div>
+                            <input type="range" class="range-input" min="0" max="100" value="10" id="minBrightness">
                         </div>
-                        <input type="range" class="range-input" min="0" max="100" value="10" id="minBrightness">
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="range-group">
-                        <div class="range-header">
-                            <label class="form-label" style="margin-bottom: 0;">Максимальная яркость</label>
-                            <span class="range-value" id="maxBrightnessValue">80%</span>
+                    <div class="form-group">
+                        <div class="range-group">
+                            <div class="range-header">
+                                <label class="form-label" style="margin-bottom: 0;">Максимальная яркость</label>
+                                <span class="range-value" id="maxBrightnessValue">80%</span>
+                            </div>
+                            <input type="range" class="range-input" min="0" max="100" value="80" id="maxBrightness">
                         </div>
-                        <input type="range" class="range-input" min="0" max="100" value="80" id="maxBrightness">
                     </div>
                 </div>
             </div>
@@ -806,7 +816,7 @@
                 <div class="section-title">Контроль температуры</div>
                 <div class="temp-control-container">
                     <div class="toggle-row">
-                        <div class="setting-label">Контроль температуры:</div>
+                        <div class="setting-label">Режим контроля:</div>
                         <label class="modern-toggle">
                             <input type="checkbox" checked>
                             <span class="toggle-slider"></span>
@@ -825,6 +835,35 @@
                             <div class="temp-input">
                                 <input type="number" class="temp-number" value="28" min="0" max="50">
                                 <span class="temp-unit">°C</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Контроль освещения</div>
+                <div class="lighting-control-container">
+                    <div class="toggle-row">
+                        <div class="setting-label">Режим контроля:</div>
+                        <label class="modern-toggle">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="temp-inputs">
+                        <div class="temp-input-group">
+                            <div class="setting-label">Минимальная:</div>
+                            <div class="temp-input">
+                                <input type="number" class="temp-number" value="10" min="0" max="100">
+                                <span class="temp-unit">%</span>
+                            </div>
+                        </div>
+                        <div class="temp-input-group">
+                            <div class="setting-label">Максимальная:</div>
+                            <div class="temp-input">
+                                <input type="number" class="temp-number" value="80" min="0" max="100">
+                                <span class="temp-unit">%</span>
                             </div>
                         </div>
                     </div>
