@@ -859,13 +859,35 @@
             input.style.setProperty('--range-progress', value + '%');
         }
 
-        // Обновление значений слайдеров
+        // Обновление значений слайдеров с валидацией
         document.getElementById('minBrightness').addEventListener('input', function () {
+            const maxBrightness = document.getElementById('maxBrightness');
+            const minValue = parseInt(this.value);
+            const maxValue = parseInt(maxBrightness.value);
+            
+            // Если начальная больше максимальной, устанавливаем максимальную на 1% выше
+            if (minValue >= maxValue) {
+                maxBrightness.value = minValue + 1;
+                document.getElementById('maxBrightnessValue').textContent = maxBrightness.value + '%';
+                updateRangeProgress(maxBrightness);
+            }
+            
             document.getElementById('minBrightnessValue').textContent = this.value + '%';
             updateRangeProgress(this);
         });
 
         document.getElementById('maxBrightness').addEventListener('input', function () {
+            const minBrightness = document.getElementById('minBrightness');
+            const minValue = parseInt(minBrightness.value);
+            const maxValue = parseInt(this.value);
+            
+            // Если максимальная меньше начальной, устанавливаем начальную на 1% ниже
+            if (maxValue <= minValue) {
+                minBrightness.value = maxValue - 1;
+                document.getElementById('minBrightnessValue').textContent = minBrightness.value + '%';
+                updateRangeProgress(minBrightness);
+            }
+            
             document.getElementById('maxBrightnessValue').textContent = this.value + '%';
             updateRangeProgress(this);
         });
