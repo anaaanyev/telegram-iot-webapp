@@ -773,7 +773,8 @@
     <div class="container">
         <div class="header">
             <div class="group-name">💡Управление освещением</div>
-            <input type="text" id="deviceNameInput" class="device-name-input" placeholder="Название устройства" value="Smart Dimmer #1">
+            <input type="text" id="deviceNameInput" class="device-name-input" placeholder="Название устройства"
+                value="Smart Dimmer #1">
             <div class="status">
                 <div class="status-dot"></div>
                 Онлайн
@@ -951,7 +952,7 @@
         // Инициализация Telegram WebApp
         const tg = window.Telegram.WebApp;
         tg.expand();
-        
+
         // Применение цветовой схемы Telegram
         document.documentElement.style.setProperty('--tg-theme-bg-color', tg.backgroundColor);
         document.documentElement.style.setProperty('--tg-theme-text-color', tg.textColor);
@@ -998,14 +999,14 @@
             const maxBrightness = document.getElementById('maxBrightness');
             const minValue = parseInt(this.value);
             const maxValue = parseInt(maxBrightness.value);
-            
+
             // Если начальная больше максимальной, устанавливаем максимальную на 1% выше
             if (minValue >= maxValue) {
                 maxBrightness.value = minValue + 1;
                 document.getElementById('maxBrightnessValue').textContent = maxBrightness.value + '%';
                 updateRangeProgress(maxBrightness);
             }
-            
+
             document.getElementById('minBrightnessValue').textContent = this.value + '%';
             updateRangeProgress(this);
         });
@@ -1014,14 +1015,14 @@
             const minBrightness = document.getElementById('minBrightness');
             const minValue = parseInt(minBrightness.value);
             const maxValue = parseInt(this.value);
-            
+
             // Если максимальная меньше начальной, устанавливаем начальную на 1% ниже
             if (maxValue <= minValue) {
                 minBrightness.value = maxValue - 1;
                 document.getElementById('minBrightnessValue').textContent = minBrightness.value + '%';
                 updateRangeProgress(minBrightness);
             }
-            
+
             document.getElementById('maxBrightnessValue').textContent = this.value + '%';
             updateRangeProgress(this);
         });
@@ -1031,14 +1032,14 @@
             const maxTemp = document.getElementById('maxTemp');
             const minValue = parseInt(this.value);
             const maxValue = parseInt(maxTemp.value);
-            
+
             // Если минимальная больше максимальной, устанавливаем максимальную на 1 градус выше
             if (minValue >= maxValue) {
                 maxTemp.value = minValue + 1;
                 document.getElementById('maxTempValue').textContent = maxTemp.value + '°C';
                 updateRangeProgress(maxTemp);
             }
-            
+
             document.getElementById('minTempValue').textContent = this.value + '°C';
             updateRangeProgress(this);
         });
@@ -1047,14 +1048,14 @@
             const minTemp = document.getElementById('minTemp');
             const minValue = parseInt(minTemp.value);
             const maxValue = parseInt(this.value);
-            
+
             // Если максимальная меньше минимальной, устанавливаем минимальную на 1 градус ниже
             if (maxValue <= minValue) {
                 minTemp.value = maxValue - 1;
                 document.getElementById('minTempValue').textContent = minTemp.value + '°C';
                 updateRangeProgress(minTemp);
             }
-            
+
             document.getElementById('maxTempValue').textContent = this.value + '°C';
             updateRangeProgress(this);
         });
@@ -1097,9 +1098,7 @@
         }
 
         function goBack() {
-            // Анимация возврата
-            document.querySelector('.container').style.transform = 'translateX(-100%)';
-            document.querySelector('.container').style.transition = 'transform 0.3s ease';
+            window.location.href = '../index.html';
         }
 
         function unbindDevice() {
