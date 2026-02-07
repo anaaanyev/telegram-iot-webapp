@@ -212,12 +212,21 @@
 
         // Функция для получения параметров из URL
         function getUrlParams() {
+            console.log("🔗 Полный URL:", window.location.href);
+            console.log("🔗 window.location.search:", window.location.search);
+
             const urlParams = new URLSearchParams(window.location.search);
-            console.log("📋 Все параметры URL:", Object.fromEntries(urlParams));
-            return {
+            console.log("📋 URLSearchParams итератор:");
+            for (let [key, value] of urlParams) {
+                console.log(`  ${key} = ${value}`);
+            }
+
+            const result = {
                 device_id: urlParams.get('device_id'),
                 device_name: urlParams.get('device_name')
             };
+            console.log("📋 Итоговые параметры:", result);
+            return result;
         }
 
         // Функция для обновления статуса устройства

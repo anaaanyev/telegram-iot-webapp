@@ -383,6 +383,9 @@
 
         // Инициализация приложения
         async function initApp() {
+            console.log("🔗 Полный URL:", window.location.href);
+            console.log("🔗 Полный search:", window.location.search);
+
             // Получаем параметры из URL
             const params = getUrlParams();
             deviceId = params.device_id;
