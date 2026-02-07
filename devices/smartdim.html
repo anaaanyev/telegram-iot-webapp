@@ -193,7 +193,14 @@
         tg.expand();
         document.documentElement.style.setProperty('--tg-theme-bg-color', window.Telegram.WebApp.backgroundColor);
 
-        // Элементы интерфейса
+        // Элементы интерфейса для данных
+        const dataCards = document.querySelectorAll('.data-card');
+        const tempElement = dataCards[0]?.querySelector('.data-value');
+        const humElement = dataCards[1]?.querySelector('.data-value');
+        const vpdElement = dataCards[2]?.querySelector('.data-value');
+        const brightnessElement = dataCards[3]?.querySelector('.data-value');
+        const currentTimeDisplay = document.querySelector('.current-time-display');
+
         const deviceNameInput = document.getElementById('deviceNameInput');
         const statusElement = document.querySelector('.status');
 
@@ -202,11 +209,11 @@
         let telegramId = null;
         let isDeviceOnline = false;
         let isSaving = false;
-        let userIsMovingSlider = false;
 
         // Функция для получения параметров из URL
         function getUrlParams() {
             const urlParams = new URLSearchParams(window.location.search);
+            console.log("📋 Все параметры URL:", Object.fromEntries(urlParams));
             return {
                 device_id: urlParams.get('device_id'),
                 device_name: urlParams.get('device_name')
@@ -216,19 +223,11 @@
         // Функция для обновления статуса устройства
         function updateDeviceStatus(online) {
             isDeviceOnline = online;
-            const statusDot = document.querySelector('.status-dot-online, .status-dot-offline');
+            console.log("🔄 Обновление статуса:", online ? "Онлайн" : "Оффлайн");
 
             if (online) {
-                if (statusDot) {
-                    statusDot.classList.remove('status-dot-offline');
-                    statusDot.classList.add('status-dot-online');
-                }
                 statusElement.innerHTML = '<div class="status-dot-online"></div>Онлайн';
             } else {
-                if (statusDot) {
-                    statusDot.classList.remove('status-dot-online');
-                    statusDot.classList.add('status-dot-offline');
-                }
                 statusElement.innerHTML = '<div class="status-dot-offline"></div>Оффлайн';
             }
 
@@ -242,7 +241,10 @@
 
         // Загрузка данных устройства
         async function loadDeviceData() {
-            if (!deviceId || !telegramId || isSaving) return;
+            if (!deviceId || !telegramId || isSaving) {
+                console.log("⏭️ Пропуск загрузки:", { deviceId, telegramId, isSaving });
+                return;
+            }
 
             const url = `https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/data?telegram_id=${telegramId}`;
             console.log("📡 Загрузка данных с:", url);
@@ -261,19 +263,17 @@
 
                     console.log("🔍 Проверка свежести данных:", {
                         timestamp: data.timestamp,
-                        hasRecentData: hasRecentData,
-                        timeDiff: data.timestamp ? (new Date() - new Date(data.timestamp)) : null
+                        hasRecentData: hasRecentData
                     });
 
                     updateDeviceStatus(hasRecentData);
 
                     if (!hasRecentData) {
                         console.log("❌ Нет свежих данных");
-                        const dataCards = document.querySelectorAll('.data-card');
-                        dataCards[0].querySelector('.data-value').textContent = '--°C';
-                        dataCards[1].querySelector('.data-value').textContent = '--';
-                        dataCards[2].querySelector('.data-value').textContent = '--';
-                        document.querySelector('.current-time-display').textContent = '--:--';
+                        if (tempElement) tempElement.textContent = '--°C';
+                        if (humElement) humElement.textContent = '--';
+                        if (vpdElement) vpdElement.textContent = '--';
+                        if (currentTimeDisplay) currentTimeDisplay.textContent = '--:--';
                         return;
                     }
 
@@ -281,27 +281,27 @@
                     if (data.temperature !== undefined && data.temperature !== null) {
                         const tempValue = Number(data.temperature).toFixed(1);
                         console.log("🌡️ Температура:", tempValue);
-                        document.querySelectorAll('.data-card')[0].querySelector('.data-value').textContent = tempValue + '°C';
+                        if (tempElement) tempElement.textContent = tempValue + '°C';
                     }
 
                     // Обновляем влажность
                     if (data.humidity !== undefined && data.humidity !== null) {
                         const humValue = Number(data.humidity).toFixed(1);
                         console.log("💧 Влажность:", humValue);
-                        document.querySelectorAll('.data-card')[1].querySelector('.data-value').textContent = humValue + '%';
+                        if (humElement) humElement.textContent = humValue + '%';
                     }
 
                     // Обновляем VPD
                     if (data.vpd !== undefined && data.vpd !== null) {
                         const vpdValue = Number(data.vpd).toFixed(2);
                         console.log("📊 VPD:", vpdValue);
-                        document.querySelectorAll('.data-card')[2].querySelector('.data-value').textContent = vpdValue + ' kPa';
+                        if (vpdElement) vpdElement.textContent = vpdValue + ' kPa';
                     }
 
                     // Обновляем время устройства из timestamp
                     if (data.timestamp) {
                         console.log("⏰ Время устройства:", data.timestamp);
-                        document.querySelector('.current-time-display').textContent = data.timestamp;
+                        if (currentTimeDisplay) currentTimeDisplay.textContent = data.timestamp;
                     }
                 } else {
                     console.error("❌ Ошибка ответа сервера");
@@ -417,6 +417,48 @@
             updateRangeProgress(this);
         });
 
+        // Функции для кнопок
+        function saveSettings() {
+            isSaving = true;
+            const btn = document.querySelector('.save-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Сохранено ✓';
+            btn.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+                isSaving = false;
+            }, 2000);
+        }
+
+        function syncTime() {
+            const btn = document.querySelector('.sync-button');
+            const originalText = btn.textContent;
+            btn.textContent = '⟳';
+            btn.style.animation = 'spin 1s linear infinite';
+
+            setTimeout(() => {
+                btn.textContent = '✓';
+                btn.style.animation = 'none';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 1000);
+            }, 1500);
+        }
+
+        function goBack() {
+            window.location.href = '../index.html';
+        }
+
+        function unbindDevice() {
+            if (confirm('Вы уверены, что хотите отвязать устройство?')) {
+                const btn = document.querySelector('.btn-danger');
+                btn.textContent = 'Отвязано';
+                btn.style.background = '#fed7d7';
+            }
+        }
+
         // Инициализация приложения
         async function initApp() {
             console.log("🚀 Инициализация приложения");
@@ -427,7 +469,7 @@
             // Получаем параметры из URL
             const params = getUrlParams();
             deviceId = params.device_id;
-            const deviceNameValue = params.device_name || deviceId;
+            const deviceNameValue = params.device_name || deviceId || 'Smart Dimmer';
 
             console.log("📱 Device ID:", deviceId);
             console.log("📝 Device Name:", deviceNameValue);
