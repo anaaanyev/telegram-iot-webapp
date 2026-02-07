@@ -306,9 +306,10 @@
 
                     if (!hasRecentData) {
                         // Показываем "--" если нет свежих данных
-                        document.querySelector('[data-label="Температура"] .data-value').textContent = '--°C';
-                        document.querySelector('[data-label="Влажность"] .data-value').textContent = '--';
-                        document.querySelector('[data-label="VPD"] .data-value').textContent = '--';
+                        const dataCards = document.querySelectorAll('.data-card');
+                        dataCards[0].querySelector('.data-value').textContent = '--°C';
+                        dataCards[1].querySelector('.data-value').textContent = '--';
+                        dataCards[2].querySelector('.data-value').textContent = '--';
                         document.querySelector('.current-time-display').textContent = '--:--';
                         return;
                     }
@@ -316,19 +317,22 @@
                     // Обновляем температуру
                     if (data.temperature !== undefined && data.temperature !== null) {
                         const tempValue = Number(data.temperature).toFixed(1);
-                        document.querySelector('[data-label="Температура"] .data-value').textContent = tempValue + '°C';
+                        const dataCards = document.querySelectorAll('.data-card');
+                        dataCards[0].querySelector('.data-value').textContent = tempValue + '°C';
                     }
 
                     // Обновляем влажность
                     if (data.humidity !== undefined && data.humidity !== null) {
                         const humValue = Number(data.humidity).toFixed(1);
-                        document.querySelector('[data-label="Влажность"] .data-value').textContent = humValue + '%';
+                        const dataCards = document.querySelectorAll('.data-card');
+                        dataCards[1].querySelector('.data-value').textContent = humValue + '%';
                     }
 
                     // Обновляем VPD
                     if (data.vpd !== undefined && data.vpd !== null) {
                         const vpdValue = Number(data.vpd).toFixed(2);
-                        document.querySelector('[data-label="VPD"] .data-value').textContent = vpdValue + ' kPa';
+                        const dataCards = document.querySelectorAll('.data-card');
+                        dataCards[2].querySelector('.data-value').textContent = vpdValue + ' kPa';
                     }
 
                     // Обновляем время устройства из timestamp
