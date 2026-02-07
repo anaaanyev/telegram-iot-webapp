@@ -210,7 +210,7 @@
         let isDeviceOnline = false;
         let isSaving = false;
 
-        // Функция для получения параметров из URL
+        // Функция для получения параметров из URL или sessionStorage
         function getUrlParams() {
             console.log("🔗 Полный URL:", window.location.href);
             console.log("🔗 window.location.search:", window.location.search);
@@ -221,10 +221,26 @@
                 console.log(`  ${key} = ${value}`);
             }
 
-            const result = {
+            let result = {
                 device_id: urlParams.get('device_id'),
                 device_name: urlParams.get('device_name')
             };
+
+            // Если параметры не в URL, пытаемся получить из sessionStorage
+            if (!result.device_id) {
+                console.log("📦 URL параметры отсутствуют, проверяем sessionStorage...");
+                try {
+                    const savedState = JSON.parse(sessionStorage.getItem('iotHubState'));
+                    if (savedState && savedState.currentDevice) {
+                        result.device_id = savedState.currentDevice.id;
+                        result.device_name = savedState.currentDevice.name;
+                        console.log("✅ Параметры восстановлены из sessionStorage:", result);
+                    }
+                } catch (error) {
+                    console.error("❌ Ошибка при чтении sessionStorage:", error);
+                }
+            }
+
             console.log("📋 Итоговые параметры:", result);
             return result;
         }
