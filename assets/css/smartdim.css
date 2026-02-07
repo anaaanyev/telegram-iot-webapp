@@ -88,12 +88,21 @@ body {
     margin-top: 0;
 }
 
-.status-dot {
+.status-dot-online {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     margin-right: 6px;
     background: #00ff88;
+    animation: pulse 2s infinite;
+}
+
+.status-dot-offline {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    background: #ff0000;
     animation: pulse 2s infinite;
 }
 

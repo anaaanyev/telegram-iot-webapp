@@ -16,7 +16,7 @@
             <input type="text" id="deviceNameInput" class="device-name-input" placeholder="Название устройства"
                 value="Smart Dimmer #1">
             <div class="status">
-                <div class="status-dot"></div>
+                <div class="status-dot-online"></div>
                 Онлайн
             </div>
         </div>
@@ -228,6 +228,145 @@
             document.head.appendChild(darkContainerStyle);
         }
 
+        // Переменные состояния
+        let deviceId = null;
+        let telegramId = null;
+        let isDeviceOnline = false;
+        let isSaving = false;
+
+        // Функция для получения параметров из URL
+        function getUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                device_id: urlParams.get('device_id'),
+                device_name: urlParams.get('device_name')
+            };
+        }
+
+        // Функция для обновления статуса устройства
+        function updateDeviceStatus(online) {
+            isDeviceOnline = online;
+            const statusDot = document.querySelector('.status-dot-online, .status-dot-offline');
+            const statusText = document.querySelector('.status');
+
+            if (online) {
+                if (statusDot) {
+                    statusDot.classList.remove('status-dot-offline');
+                    statusDot.classList.add('status-dot-online');
+                }
+                if (statusText) {
+                    const textSpan = statusText.querySelector('span') || document.createElement('span');
+                    textSpan.textContent = 'Онлайн';
+                    if (!statusText.querySelector('span')) {
+                        statusText.innerHTML = '';
+                        statusText.appendChild(document.createElement('div')).className = 'status-dot-online';
+                        statusText.appendChild(textSpan);
+                    }
+                }
+            } else {
+                if (statusDot) {
+                    statusDot.classList.remove('status-dot-online');
+                    statusDot.classList.add('status-dot-offline');
+                }
+                if (statusText) {
+                    const textSpan = statusText.querySelector('span') || document.createElement('span');
+                    textSpan.textContent = 'Оффлайн';
+                    if (!statusText.querySelector('span')) {
+                        statusText.innerHTML = '';
+                        statusText.appendChild(document.createElement('div')).className = 'status-dot-offline';
+                        statusText.appendChild(textSpan);
+                    }
+                }
+            }
+
+            // Блокируем/разблокируем элементы управления
+            const controls = document.querySelectorAll('.range-input, .modern-select, .time-input, .save-btn, .sync-button');
+            controls.forEach(control => {
+                control.disabled = !online;
+                control.style.opacity = online ? '1' : '0.5';
+            });
+        }
+
+        // Загрузка данных устройства
+        async function loadDeviceData() {
+            if (!deviceId || !telegramId || isSaving) return;
+
+            const url = `https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/data?telegram_id=${telegramId}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Проверяем, есть ли данные от устройства (30 секунд)
+                    const hasRecentData = data.timestamp &&
+                        (new Date() - new Date(data.timestamp)) < 30000;
+
+                    updateDeviceStatus(hasRecentData);
+
+                    if (!hasRecentData) {
+                        // Показываем "--" если нет свежих данных
+                        document.querySelector('[data-label="Температура"] .data-value').textContent = '--°C';
+                        document.querySelector('[data-label="Влажность"] .data-value').textContent = '--';
+                        document.querySelector('[data-label="VPD"] .data-value').textContent = '--';
+                        document.querySelector('.current-time-display').textContent = '--:--';
+                        return;
+                    }
+
+                    // Обновляем температуру
+                    if (data.temperature !== undefined && data.temperature !== null) {
+                        const tempValue = Number(data.temperature).toFixed(1);
+                        document.querySelector('[data-label="Температура"] .data-value').textContent = tempValue + '°C';
+                    }
+
+                    // Обновляем влажность
+                    if (data.humidity !== undefined && data.humidity !== null) {
+                        const humValue = Number(data.humidity).toFixed(1);
+                        document.querySelector('[data-label="Влажность"] .data-value').textContent = humValue + '%';
+                    }
+
+                    // Обновляем VPD
+                    if (data.vpd !== undefined && data.vpd !== null) {
+                        const vpdValue = Number(data.vpd).toFixed(2);
+                        document.querySelector('[data-label="VPD"] .data-value').textContent = vpdValue + ' kPa';
+                    }
+
+                    // Обновляем время устройства из timestamp
+                    if (data.timestamp) {
+                        document.querySelector('.current-time-display').textContent = data.timestamp;
+                    }
+                } else {
+                    updateDeviceStatus(false);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                updateDeviceStatus(false);
+            }
+        }
+
+        // Инициализация приложения
+        function initApp() {
+            const params = getUrlParams();
+            deviceId = params.device_id;
+            const deviceNameValue = params.device_name || deviceId;
+
+            const deviceNameInput = document.getElementById('deviceNameInput');
+            if (deviceNameInput) {
+                deviceNameInput.value = deviceNameValue;
+            }
+
+            const telegramUser = tg.initDataUnsafe?.user;
+            if (telegramUser) {
+                telegramId = telegramUser.id;
+            }
+
+            // Загружаем начальные данные
+            loadDeviceData();
+
+            // Запускаем периодическое обновление (каждые 5 секунд)
+            setInterval(loadDeviceData, 5000);
+        }
+
         // Функция для обновления прогресса ползунка
         function updateRangeProgress(input) {
             const value = ((input.value - input.min) / (input.max - input.min)) * 100;
@@ -240,7 +379,6 @@
             const minValue = parseInt(this.value);
             const maxValue = parseInt(maxBrightness.value);
 
-            // Если начальная больше максимальной, устанавливаем максимальную на 1% выше
             if (minValue >= maxValue) {
                 maxBrightness.value = minValue + 1;
                 document.getElementById('maxBrightnessValue').textContent = maxBrightness.value + '%';
@@ -256,7 +394,6 @@
             const minValue = parseInt(minBrightness.value);
             const maxValue = parseInt(this.value);
 
-            // Если максимальная меньше начальной, устанавливаем начальную на 1% ниже
             if (maxValue <= minValue) {
                 minBrightness.value = maxValue - 1;
                 document.getElementById('minBrightnessValue').textContent = minBrightness.value + '%';
@@ -273,7 +410,6 @@
             const minValue = parseInt(this.value);
             const maxValue = parseInt(maxTemp.value);
 
-            // Если минимальная больше максимальной, устанавливаем максимальную на 1 градус выше
             if (minValue >= maxValue) {
                 maxTemp.value = minValue + 1;
                 document.getElementById('maxTempValue').textContent = maxTemp.value + '°C';
@@ -289,7 +425,6 @@
             const minValue = parseInt(minTemp.value);
             const maxValue = parseInt(this.value);
 
-            // Если максимальная меньше минимальной, устанавливаем минимальную на 1 градус ниже
             if (maxValue <= minValue) {
                 minTemp.value = maxValue - 1;
                 document.getElementById('minTempValue').textContent = minTemp.value + '°C';
@@ -306,11 +441,12 @@
             updateRangeProgress(document.getElementById('maxBrightness'));
             updateRangeProgress(document.getElementById('minTemp'));
             updateRangeProgress(document.getElementById('maxTemp'));
+            initApp();
         });
 
         // Функции для кнопок
         function saveSettings() {
-            // Анимация сохранения
+            isSaving = true;
             const btn = document.querySelector('.save-btn');
             const originalText = btn.textContent;
             btn.textContent = 'Сохранено ✓';
@@ -319,11 +455,12 @@
             setTimeout(() => {
                 btn.textContent = originalText;
                 btn.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+                isSaving = false;
             }, 2000);
         }
 
         function syncTime() {
-            const btn = document.querySelector('.sync-btn');
+            const btn = document.querySelector('.sync-button');
             const originalText = btn.textContent;
             btn.textContent = '⟳';
             btn.style.animation = 'spin 1s linear infinite';
@@ -343,24 +480,11 @@
 
         function unbindDevice() {
             if (confirm('Вы уверены, что хотите отвязать устройство?')) {
-                const btn = document.querySelector('.unbind-btn');
+                const btn = document.querySelector('.btn-danger');
                 btn.textContent = 'Отвязано';
                 btn.style.background = '#fed7d7';
             }
         }
-
-        // Обновление времени каждую секунду
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('ru-RU', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            document.querySelector('.current-time-display').textContent = timeString;
-        }
-
-        setInterval(updateTime, 1000);
-        updateTime();
 
         // CSS анимация для кнопки синхронизации
         const style = document.createElement('style');
