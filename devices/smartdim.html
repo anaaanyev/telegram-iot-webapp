@@ -513,9 +513,9 @@
             // Сохраняем только текущие данные устройства
             const stateToSave = {
                 deviceData: [[deviceId, {
-                    temperature: temp.textContent,
-                    humidity: hum.textContent,
-                    vpd: vpd.textContent,
+                    temperature: tempElement.textContent,
+                    humidity: humElement.textContent,
+                    vpd: vpdElement.textContent,
                     timestamp: new Date().toISOString()
                 }]],
                 deviceStatuses: [[deviceId, isDeviceOnline ? 'online' : 'offline']],
