@@ -511,22 +511,22 @@
         // Возврат на главный экран
         function goToMainScreen() {
             // Сохраняем только текущие данные устройства
-            const stateToSave = {
-                deviceData: [[deviceId, {
-                    temperature: tempElement.textContent,
-                    humidity: humElement.textContent,
-                    vpd: vpdElement.textContent,
-                    timestamp: new Date().toISOString()
-                }]],
-                deviceStatuses: [[deviceId, isDeviceOnline ? 'online' : 'offline']],
-                lastUpdate: new Date().getTime()
-            };
+            // const stateToSave = {
+            //     deviceData: [[deviceId, {
+            //         temperature: tempElement.textContent,
+            //         humidity: humElement.textContent,
+            //         vpd: vpdElement.textContent,
+            //         timestamp: new Date().toISOString()
+            //     }]],
+            //     deviceStatuses: [[deviceId, isDeviceOnline ? 'online' : 'offline']],
+            //     lastUpdate: new Date().getTime()
+            // };
 
-            try {
-                sessionStorage.setItem('iotHubState', JSON.stringify(stateToSave));
-            } catch (error) {
-                console.error('Ошибка сохранения состояния:', error);
-            }
+            // try {
+            //     sessionStorage.setItem('iotHubState', JSON.stringify(stateToSave));
+            // } catch (error) {
+            //     console.error('Ошибка сохранения состояния:', error);
+            // }
 
             window.location.href = '../index.html';
         }
