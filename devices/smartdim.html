@@ -177,10 +177,10 @@
             </button>
 
             <div class="buttons-row">
-                <button class="btn-secondary" onclick="goBack()">
+                <button class="btn-secondary" onclick="goToMainScreen()">
                     <i class="fas fa-arrow-left"></i> Назад
                 </button>
-                <button class="btn-danger" onclick="unbindDevice()">
+                <button class="btn-danger" onclick="unregisterDevice()">
                     <i class="fas fa-unlink"></i> Отвязать
                 </button>
             </div>
@@ -480,17 +480,64 @@
             }, 1500);
         }
 
-        function goBack() {
+        // Отвязка устройства
+        async function unregisterDevice() {
+            const confirmed = confirm(`Вы уверены, что хотите отвязать устройство ${deviceId}?`);
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch("https://iot-backend-bor5.onrender.com/api/auth/unregister-device", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        telegram_id: telegramId,
+                        device_id: deviceId
+                    })
+                });
+
+                if (response.ok) {
+                    tg.showAlert('Устройство успешно отвязано');
+                    window.location.href = '../index.html';
+                } else {
+                    const result = await response.json();
+                    tg.showAlert(result.error || 'Ошибка отвязки');
+                }
+            } catch (error) {
+                console.error('Ошибка отвязки:', error);
+                tg.showAlert('Ошибка сети');
+            }
+        }
+
+        // Возврат на главный экран
+        function goToMainScreen() {
+            // Сохраняем только текущие данные устройства
+            const stateToSave = {
+                deviceData: [[deviceId, {
+                    temperature: temp.textContent,
+                    humidity: hum.textContent,
+                    vpd: vpd.textContent,
+                    timestamp: new Date().toISOString()
+                }]],
+                deviceStatuses: [[deviceId, isDeviceOnline ? 'online' : 'offline']],
+                lastUpdate: new Date().getTime()
+            };
+
+            try {
+                sessionStorage.setItem('iotHubState', JSON.stringify(stateToSave));
+            } catch (error) {
+                console.error('Ошибка сохранения состояния:', error);
+            }
+
             window.location.href = '../index.html';
         }
 
-        function unbindDevice() {
-            if (confirm('Вы уверены, что хотите отвязать устройство?')) {
-                const btn = document.querySelector('.btn-danger');
-                btn.textContent = 'Отвязано';
-                btn.style.background = '#fed7d7';
-            }
-        }
+        // function unbindDevice() {
+        //     if (confirm('Вы уверены, что хотите отвязать устройство?')) {
+        //         const btn = document.querySelector('.btn-danger');
+        //         btn.textContent = 'Отвязано';
+        //         btn.style.background = '#fed7d7';
+        //     }
+        // }
 
         // Инициализация приложения
         async function initApp() {
