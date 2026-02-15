@@ -10,6 +10,8 @@
 </head>
 
 <body>
+    <div id="notificationContainer" class="notification-container"></div>
+
     <div class="container">
         <div class="header">
             <div class="group-name">💡Управление освещением</div>
@@ -226,6 +228,28 @@
         let telegramId = null;
         let isDeviceOnline = false;
         let isSaving = false;
+
+        // Функция для показа сообщений
+        function showMessage(text, type = 'success') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span>${text}</span>
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            `;
+
+            container.appendChild(notification);
+
+            // Remove notification after delay
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => {
+                    container.removeChild(notification);
+                }, 300);
+            }, 4000);
+        }
 
         // Функция для получения параметров из URL или sessionStorage
         function getUrlParams() {
@@ -531,8 +555,13 @@
 
         // Функции для кнопок
         async function saveSettings() {
+            if (!isDeviceOnline) {
+                showMessage('Устройство оффлайн. Невозможно сохранить настройки.', 'error');
+                return;
+            }
+
             if (!deviceId || !telegramId) {
-                tg.showAlert('Ошибка: Device ID не найден');
+                showMessage('Ошибка: Device ID не найден', 'error');
                 return;
             }
 
@@ -545,47 +574,52 @@
             try {
                 // Собираем настройки с формы
                 const settings = {
-                    // LED параметры
                     ledLow: parseInt(minBrightnessInput.value),
                     ledPower: parseInt(maxBrightnessInput.value),
                     durationSun: parseInt(sunsetSelect.value),
                     zoneUTC: parseInt(timezoneSelect.value),
-
-                    // Расписание
                     ledOnHour: parseInt(timeInputs[0].value.split(':')[0]),
                     ledOnMinute: parseInt(timeInputs[0].value.split(':')[1]),
                     ledOffHour: parseInt(timeInputs[1].value.split(':')[0]),
                     ledOffMinute: parseInt(timeInputs[1].value.split(':')[1]),
-
-                    // Температурные параметры
                     tempLow: parseFloat(minTempInput.value),
                     tempHigh: parseFloat(maxTempInput.value)
                 };
 
                 console.log("📤 Отправка настроек:", settings);
 
-                const response = await fetch(
-                    `https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/settings?telegram_id=${telegramId}`,
+                // Сохраняем настройки
+                const settingsResponse = await fetch(
+                    `https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/settings`,
                     {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `initData ${window.Telegram.WebApp.initData}`
-                        },
-                        body: JSON.stringify({ settings })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            telegram_id: telegramId,
+                            settings: settings
+                        })
                     }
                 );
 
-                console.log("✅ Ответ сервера статус:", response.status);
+                // Сохраняем имя устройства
+                const newName = deviceNameInput.value.trim();
+                const nameResponse = await fetch(
+                    `https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/name`,
+                    {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            telegram_id: telegramId,
+                            name: newName
+                        })
+                    }
+                );
 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log("✅ Настройки сохранены:", result);
-
+                if (settingsResponse.ok && nameResponse.ok) {
+                    console.log("✅ Настройки и имя успешно сохранены");
+                    showMessage('Настройки сохранены');
                     btn.textContent = 'Сохранено ✓';
                     btn.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
-
-                    tg.showAlert('Настройки успешно сохранены');
 
                     setTimeout(() => {
                         btn.textContent = originalText;
@@ -594,10 +628,14 @@
                         isSaving = false;
                     }, 2000);
                 } else {
-                    const result = await response.json();
-                    console.error("❌ Ошибка сохранения:", result);
+                    const settingsError = await settingsResponse.json().catch(() => ({}));
+                    const nameError = await nameResponse.json().catch(() => ({}));
+                    console.error("❌ Ошибка сохранения:", { settingsError, nameError });
 
-                    tg.showAlert('Ошибка: ' + (result.error || 'Не удалось сохранить настройки'));
+                    showMessage(
+                        settingsError.error || nameError.error || 'Ошибка сохранения',
+                        'error'
+                    );
 
                     btn.textContent = originalText;
                     btn.disabled = false;
@@ -605,8 +643,7 @@
                 }
             } catch (error) {
                 console.error('❌ Ошибка при сохранении:', error);
-                tg.showAlert('Ошибка сети при сохранении настроек');
-
+                showMessage('Ошибка сети при сохранении настроек', 'error');
                 btn.textContent = originalText;
                 btn.disabled = false;
                 isSaving = false;
@@ -626,14 +663,14 @@
             };
 
             fetch(
-                `https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/settings?telegram_id=${telegramId}`,
+                `https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/settings`,
                 {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `initData ${window.Telegram.WebApp.initData}`
-                    },
-                    body: JSON.stringify({ settings })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: telegramId,
+                        settings: settings
+                    })
                 }
             ).then(() => {
                 btn.textContent = '✓';
@@ -656,14 +693,14 @@
 
             try {
                 const response = await fetch(
-                    `https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/name?telegram_id=${telegramId}`,
+                    `https://iot-backend-bor5.onrender.com/api/devices/${deviceId}/name`,
                     {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `initData ${window.Telegram.WebApp.initData}`
-                        },
-                        body: JSON.stringify({ name: newName })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            telegram_id: telegramId,
+                            name: newName
+                        })
                     }
                 );
 
@@ -784,6 +821,20 @@
             }
             telegramId = telegramUser.id;
             console.log("👤 Telegram ID:", telegramId);
+
+            // Установка начальных значений (значения по умолчанию из конфигурации устройства)
+            minBrightnessInput.value = 20;
+            maxBrightnessInput.value = 40;
+            minBrightnessValue.textContent = '20%';
+            maxBrightnessValue.textContent = '40%';
+            minTempInput.value = 27;
+            maxTempInput.value = 28;
+            minTempValue.textContent = '27°C';
+            maxTempValue.textContent = '28°C';
+            sunsetSelect.value = 60;
+            timezoneSelect.value = 3;
+            timeInputs[0].value = '08:00';
+            timeInputs[1].value = '20:00';
 
             // Инициализируем ползунки для визуального отображения прогресса
             const rangeInputs = document.querySelectorAll('.range-input');
