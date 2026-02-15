@@ -1,0 +1,50 @@
+часть кода из бэкенд
+
+// 1.2 Конфигурация типов устройств
+const DEVICE_TYPES = {
+    smartdim: {
+        name: "Управление освещением",
+        icon: "💡",
+        mqttTopics: {
+            data: "devices/{device_id}/data",        // получение данных датчиков (температура, влажность, VPD)
+            settings: "devices/{device_id}/settings", // получение настроек устройства
+            control: "devices/{device_id}/control",   // отправка команд управления
+            sync_time: "devices/{device_id}/sync_time" // синхронизация времени
+        },
+        defaultSettings: {
+            ledLow: 20,
+            ledPower: 40,
+            durationSun: 60,
+            ledOnHour: 8,
+            ledOnMinute: 0,
+            ledOffHour: 20,
+            ledOffMinute: 0,
+            dayMode: false,
+            tempLow: 27.0,
+            tempHigh: 28.0,
+            zoneUTC: 3
+        },
+        validation: {
+            ledLow: { min: 0, max: 100, type: "number" },
+            ledPower: { min: 0, max: 100, type: "number" },
+            durationSun: { min: 0, max: 120, type: "number" },
+            ledOnHour: { min: 0, max: 23, type: "number" },
+            ledOnMinute: { min: 0, max: 59, type: "number" },
+            ledOffHour: { min: 0, max: 23, type: "number" },
+            ledOffMinute: { min: 0, max: 59, type: "number" },
+            dayMode: { type: "boolean" },
+            tempLow: { min: 0, max: 20, type: "number" },
+            tempHigh: { min: 20, max: 40, type: "number" },
+            zoneUTC: { min: -12, max: 12, type: "number" }
+        },
+        uiPath: "/devices/"
+    }
+    // НОВЫЕ ТИПЫ УСТРОЙСТВ ДОБАВЛЯЮТСЯ ЗДЕСЬ
+};
+
+
+На MQTT топики приходят вот так:
+
+devices/smartdim01/settings {"ledLow":10,"ledPower":50,"currentLedPower":0,"durationSun":60,"ledOnHour":8,"ledOnMinute":0,"ledOffHour":20,"ledOffMinute":0,"dayMode":false,"tempLow":23.3,"tempHigh":25.9,"zoneUTC":3,"localHour":20,"localMinute":47,"dht_connected":true}
+
+devices/smartdim01/data	{"temperature":24.8,"humidity":35.4,"vpd":2.02,"timestamp":"20:47"}
